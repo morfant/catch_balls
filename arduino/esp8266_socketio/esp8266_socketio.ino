@@ -11,7 +11,7 @@ ESP8266WiFiMulti WiFiMulti;
 SocketIoClient webSocket;
 
 
-const char BALL_ID = 0;
+const char * SOCKET_ID = "ball_0";
 
 int pos[3] = {};
 
@@ -71,9 +71,9 @@ void loop() {
 
   //  USE_SERIAL.println(payload);
 
-  webSocket.emit("ball_" + BALL_ID, payload);
+  webSocket.emit(SOCKET_ID, payload);
 
-  delay(100);
+  delay(10);
 
 
 

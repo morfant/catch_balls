@@ -35,7 +35,7 @@ app.get('/update/:data', function (req, res) {
 io.on('connection',  function(socket) {
     console.log('new connection: ' + socket.id);
 
-    socket.on('ball_1', function(data){
+    socket.on('ball_0', function(data){
         // console.log("ballHandler()");
         // console.log(data);
 
@@ -48,7 +48,7 @@ io.on('connection',  function(socket) {
             z : splited[2].slice(0, splited[2].length - 1).toString()
         };
 
-        // console.log(obj);
+        console.log(obj);
         io.emit('pos', obj);
     });
 
