@@ -32,16 +32,39 @@ app.get('/update/:data', function (req, res) {
 
 
 // socket.io callback
-io.on('connection', newConnection);
+io.on('connection',  function(socket) {
+    console.log('new connection: ' + socket.id);
+
+    socket.on('ball_1', function(data){
+        // console.log("ballHandler()");
+        // console.log(data);
+
+        var splited = data.split('/');
+        // console.log(splited);
+
+        var obj = {
+            x : splited[0].slice(1, splited[0].length).toString(), 
+            y : splited[1].toString(),
+            z : splited[2].slice(0, splited[2].length - 1).toString()
+        };
+
+        // console.log(obj);
+        io.emit('pos', obj);
+    });
+
+});
+
 io.on('disconnect', disConnection);
 
-function newConnection(socket) {
-    console.log('new connection: ' + socket.id);
-}
+// function newConnection(socket) {
+//     console.log('new connection: ' + socket.id);
+// }
 
 function disConnection(socket) {
     console.log('disconnected: ' + socket.id);
 }
+
+
 
 
 console.log("server is running..");

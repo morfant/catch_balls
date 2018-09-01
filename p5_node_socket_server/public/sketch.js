@@ -28,12 +28,12 @@ function draw() {
 // socket.io callback
 socket.on('pos', function(_data) { // position
     // console.log("get pos()")
-    var d = pos_x - _data.x;
+    // console.log(_data);
 
     pos_x = _data.x;
     pos_y = _data.y;
     pos_z = _data.z;
-    // console.log(pos_x + " / " + pos_y + " / " + pos_z)
+    console.log(pos_x + " / " + pos_y + " / " + pos_z)
 });
 
 socket.on('orient', function(_data) { // orientation
