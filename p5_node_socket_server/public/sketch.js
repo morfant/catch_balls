@@ -3,9 +3,17 @@ var pos_x, pos_y, pos_z;
 
 var socket = io.connect();
 
+
+var bufferX = [];
+var bufferY = [];
+var bufferZ = [];
+var plotSize = 5;
+var scaleY = 1.0;
+
 function setup() {
 
-  createCanvas(innerWidth, innerHeight);
+  createCanvas(1200, 800); // for display graph
+//   createCanvas(1200, 500);
   background(51);
 
   pos_x = 0;
@@ -19,8 +27,27 @@ function draw() {
     background(back_col);
 
     // noStroke();
-    fill(255);
-    ellipse(pos_x, pos_y, 80, 80);
+    // fill(255);
+    // ellipse(pos_x, pos_y, 80, 80);
+
+
+
+    // Graph
+
+
+    // horizontal zero line
+    stroke(255);
+    line(0, height/2, width, height/2);
+
+
+    for (var i = 0; i < bufferX.length; i++) {
+        fill(255, 0, 0);
+        ellipse(i, height/2 - bufferX[i] * scaleY, plotSize, plotSize);
+        fill(0, 255, 0);
+        ellipse(i, height/2 - bufferY[i] * scaleY, plotSize, plotSize);
+        fill(0, 0, 255);
+        ellipse(i, height/2 - bufferZ[i] * scaleY, plotSize, plotSize);
+    }
  
 }
 
@@ -33,7 +60,15 @@ socket.on('pos', function(_data) { // position
     pos_x = _data.x;
     pos_y = _data.y;
     pos_z = _data.z;
-    console.log(pos_x + " / " + pos_y + " / " + pos_z)
+    // console.log(pos_x + " / " + pos_y + " / " + pos_z)
+
+    bufferX.push(pos_x);
+    bufferY.push(pos_y);
+    bufferZ.push(pos_z);
+    if (bufferX.length > 1024) bufferX.shift();
+    if (bufferY.length > 1024) bufferY.shift();
+    if (bufferZ.length > 1024) bufferZ.shift();
+
 });
 
 socket.on('orient', function(_data) { // orientation

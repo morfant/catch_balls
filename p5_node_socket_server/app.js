@@ -36,8 +36,8 @@ io.on('connection',  function(socket) {
     console.log('new connection: ' + socket.id);
 
     socket.on('ball_0', function(data){
-        // console.log("ballHandler()");
-        // console.log(data);
+        console.log("ballHandler()");
+        console.log(data);
 
         var splited = data.split('/');
         // console.log(splited);
@@ -48,7 +48,7 @@ io.on('connection',  function(socket) {
             z : splited[2].slice(0, splited[2].length - 1).toString()
         };
 
-        console.log(obj);
+        // console.log(obj);
         io.emit('pos', obj);
     });
 
