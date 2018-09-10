@@ -5,6 +5,8 @@ var socket = require('socket.io')
 var server = app.listen(3000, "0.0.0.0");
 var io = socket(server);
 
+var socketClientList = [];
+
 
 // server static files : index.html, sketch.js...
 app.use(express.static('public'));
@@ -33,7 +35,37 @@ app.get('/update/:data', function (req, res) {
 
 // socket.io callback
 io.on('connection',  function(socket) {
-    console.log('new connection: ' + socket.id);
+
+    var id = socket.id;
+
+    console.log('new connection: ' + id);
+
+    socketClientList.push(id);
+    console.log(socketClientList);
+
+    // emit to client that has specific socket id.
+    // io.to(id).emit('greeting', "hi hello : " + id + " !!");
+
+
+    // emit to random socket cilent
+    var r = getRandomInt(socketClientList.length);
+    // console.log(r);
+    var rid = socketClientList[r];
+    // console.log(rid);
+    io.to(rid).emit('bloom', "bloom: " + rid + " !!");
+
+
+    socket.on('disconnect', function () {
+        console.log('disconnected: ' + id);
+
+        var index = socketClientList.indexOf(id);
+        if (index > -1) {
+            socketClientList.splice(index, 1);
+        }
+        console.log(socketClientList);
+
+    });
+
 
     socket.on('ball_0', function(data){
         console.log("ballHandler()");
@@ -52,6 +84,8 @@ io.on('connection',  function(socket) {
         io.emit('pos', obj);
     });
 
+
+
 });
 
 io.on('disconnect', disConnection);
@@ -63,6 +97,10 @@ io.on('disconnect', disConnection);
 function disConnection(socket) {
     console.log('disconnected: ' + socket.id);
 }
+
+function getRandomInt(max) {
+    return Math.floor(Math.random() * Math.floor(max));
+  }
 
 
 

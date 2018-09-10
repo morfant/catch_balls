@@ -8,7 +8,12 @@ var bufferX = [];
 var bufferY = [];
 var bufferZ = [];
 var plotSize = 5;
-var scaleY = 1.0;
+var scaleY = 3;
+
+
+var al = 0;
+
+var bloom = 0;
 
 function setup() {
 
@@ -36,9 +41,10 @@ function draw() {
 
 
     // horizontal zero line
-    stroke(255);
+    // stroke(255);
     line(0, height/2, width, height/2);
 
+    noStroke();
 
     for (var i = 0; i < bufferX.length; i++) {
         fill(255, 0, 0);
@@ -48,6 +54,13 @@ function draw() {
         fill(0, 0, 255);
         ellipse(i, height/2 - bufferZ[i] * scaleY, plotSize, plotSize);
     }
+
+
+    noStroke();
+    fill(255, 0, 0, al);
+    ellipse(width/2, height/2, 400, 400);
+
+    if (frameCount % 100 == 0) al = 0;
  
 }
 
@@ -85,6 +98,11 @@ socket.on('updateBackground', function(_data) {
   back_col = _data;
 });
 
+
+socket.on('bloom', function(_data) { 
+    al = 255;
+    console.log(_data);
+});
 
 
 // function mouseDragged() {

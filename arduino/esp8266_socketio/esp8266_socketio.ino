@@ -42,8 +42,9 @@ void setup() {
 
   USE_SERIAL.println("after forloop!");
 
-  //  WiFiMulti.addAP("jjwc", "akdyspwm");
-  WiFiMulti.addAP("pa-do", "jeokpa-do");
+    // Set wifi info
+    WiFiMulti.addAP("jjwc", "akdyspwm");
+//  WiFiMulti.addAP("pa-do", "jeokpa-do");
 
   while (WiFiMulti.run() != WL_CONNECTED) {
     USE_SERIAL.printf("wifi not connected!");
@@ -53,8 +54,11 @@ void setup() {
   USE_SERIAL.println("after wifi connection!");
 
   //    webSocket.on("event", event);
-  //  webSocket.begin("192.168.0.37", 3000);
-  webSocket.begin("192.168.0.5", 3000);
+
+
+  // Set socket.io server address and port
+    webSocket.begin("192.168.0.37", 3000);
+//  webSocket.begin("192.168.0.5", 3000);
 
   USE_SERIAL.println("websocket began!");
 
@@ -75,9 +79,12 @@ void setup() {
 
 void loop() {
 
-  sensors_event_t event;
-  bno.getEvent(&event);
+// get orientation 
+//  sensors_event_t event;
+//  bno.getEvent(&event);
 
+
+// get accelerometer
   imu::Vector<3> acc = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
 
   webSocket.loop();
@@ -86,27 +93,29 @@ void loop() {
   // a : accelerometer
 
 //  String p = "\"\\\"" + String(pos[0]) + "/" + String(pos[1]) + "/" + String(pos[2]) + "\\\"\"";
-  String o = "\"\\\"" + String(event.orientation.x) + "/" + String(event.orientation.y) + "/" + String(event.orientation.z) + "|" + String(acc.x()) + "/" + String(acc.y()) + "/" + String(acc.z()) + "\\\"\"";
-//  String a = "\"\\\"" + String(acc.x()) + "/" + String(acc.y()) + "/" + String(acc.z()) + "\\\"\"";  
+//  String o = "\"\\\"" + String(event.orientation.x) + "/" + String(event.orientation.y) + "/" + String(event.orientation.z) + "|" + String(acc.x()) + "/" + String(acc.y()) + "/" + String(acc.z()) + "\\\"\"";
+  String a = "\"\\\"" + String(acc.x()) + "/" + String(acc.y()) + "/" + String(acc.z()) + "\\\"\"";  
 
   
   //  USE_SERIAL.println(p);
   
 //  int len_p = p.length() + 1;
-  int len_o = o.length() + 1;
-//  int len_a = a.length() + 1;
+//  int len_o = o.length() + 1;
+  int len_a = a.length() + 1;
+  
 //  char payload_p[len_p];
-  char payload_o[len_o];
-//  char payload_a[len_a];
+//  char payload_o[len_o];
+  char payload_a[len_a];
+  
 //  p.toCharArray(payload_p, len_p);
-  o.toCharArray(payload_o, len_o);
-//  a.toCharArray(payload_a, len_a);
+//  o.toCharArray(payload_o, len_o);
+  a.toCharArray(payload_a, len_a);
 
-  //  USE_SERIAL.println(payload);
+//    USE_SERIAL.println(payload_o);
 
 //  webSocket.emit(SOCKET_ID, payload_p);
-  webSocket.emit(SOCKET_ID, payload_o);
-//  webSocket.emit(SOCKET_ID, payload_a);
+//  webSocket.emit(SOCKET_ID, payload_o);
+  webSocket.emit(SOCKET_ID, payload_a); 
 
   delay(10);
 
