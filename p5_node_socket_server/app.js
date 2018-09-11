@@ -27,7 +27,7 @@ var isStop = [false, false, false, false];
 app.use(express.static('public'));
 
 
-// handle get method 
+// handle HTTP get method 
 app.get('/posx/:x/posy/:y/posz/:z', function (req, res) {
     // console.log(req.params);
     io.emit('pos', req.params);
@@ -62,13 +62,6 @@ io.on('connection',  function(socket) {
     // io.to(id).emit('greeting', "hi hello : " + id + " !!");
 
 
-    // emit to random socket cilent
-    var r = getRandomInt(socketClientList.length);
-    // console.log(r);
-    var rid = socketClientList[r];
-    // console.log(rid);
-    io.to(rid).emit('bloom', "bloom: " + rid + " !!");
-
 
     socket.on('disconnect', function () {
         console.log('disconnected: ' + id);
@@ -97,6 +90,13 @@ io.on('connection',  function(socket) {
    
         // when ball is stop..
         if (isStop[ballID]) {
+
+            // emit to random socket cilent
+            var r = getRandomInt(socketClientList.length);
+            // console.log(r);
+            var rid = socketClientList[r];
+            // console.log(rid);
+            io.to(rid).emit('bloom', "bloom: " + rid + " !!");
 
         }
 

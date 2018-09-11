@@ -129,20 +129,16 @@ socket.on('updateBackground', function(_data) {
 });
 
 
-<<<<<<< HEAD
 socket.on('setBotany', function(_data) {
   console.log(_data);
   drawBotany = _data;
 });
 
 
-=======
 socket.on('bloom', function(_data) { 
     al = 255;
     console.log(_data);
 });
-
->>>>>>> 39d7056a9713f5b4138a9d35520e85808610bf7a
 
 // function mouseDragged() {
 //   console.log(mouseX);
