@@ -10,10 +10,15 @@ var bufferZ = [];
 var plotSize = 5;
 var scaleY = 1.0;
 
+
+var drawBotany = false;
+var eraseBotany = false;
+
+
+
 function setup() {
 
   createCanvas(1200, 800); // for display graph
-//   createCanvas(1200, 500);
   background(51);
 
   pos_x = 0;
@@ -33,8 +38,6 @@ function draw() {
 
 
     // Graph
-
-
     // horizontal zero line
     stroke(255);
     line(0, height/2, width, height/2);
@@ -48,6 +51,31 @@ function draw() {
         fill(0, 0, 255);
         ellipse(i, height/2 - bufferZ[i] * scaleY, plotSize, plotSize);
     }
+
+
+
+    // botany
+    if (drawBotany) {
+        
+    //    var a = n * 137.3;
+        // var a = n * 137.5;
+        var a = n * 137.6;
+        var r = c * sqrt(n);
+
+        var x = 2 * r * cos(a) + width/2;
+        var y = 2 * r * sin(a) + height/2;
+
+        fill(155, 100 * cos(a/3) * 255, 200);
+        noStroke();
+            
+    //    if (n % 3 == 0) {
+           ellipse(x, y, random(4, 8), random(4, 10));    
+    //    }
+        n++;
+    } else {
+        background(0);
+    }
+
  
 }
 
@@ -83,6 +111,12 @@ socket.on('orient', function(_data) { // orientation
 socket.on('updateBackground', function(_data) {
   console.log(_data);
   back_col = _data;
+});
+
+
+socket.on('setBotany', function(_data) {
+  console.log(_data);
+  drawBotany = _data;
 });
 
 
