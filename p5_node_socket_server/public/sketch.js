@@ -8,7 +8,12 @@ var bufferX = [];
 var bufferY = [];
 var bufferZ = [];
 var plotSize = 5;
-var scaleY = 1.0;
+var scaleY = 3;
+
+
+var al = 0;
+
+var bloom = 0;
 
 
 var drawBotany = false;
@@ -39,9 +44,10 @@ function draw() {
 
     // Graph
     // horizontal zero line
-    stroke(255);
+    // stroke(255);
     line(0, height/2, width, height/2);
 
+    noStroke();
 
     for (var i = 0; i < bufferX.length; i++) {
         fill(255, 0, 0);
@@ -76,6 +82,15 @@ function draw() {
         background(0);
     }
 
+
+
+
+    // test red ellipse
+    noStroke();
+    fill(255, 0, 0, al);
+    ellipse(width/2, height/2, 400, 400);
+
+    if (frameCount % 100 == 0) al = 0;
  
 }
 
@@ -114,12 +129,20 @@ socket.on('updateBackground', function(_data) {
 });
 
 
+<<<<<<< HEAD
 socket.on('setBotany', function(_data) {
   console.log(_data);
   drawBotany = _data;
 });
 
 
+=======
+socket.on('bloom', function(_data) { 
+    al = 255;
+    console.log(_data);
+});
+
+>>>>>>> 39d7056a9713f5b4138a9d35520e85808610bf7a
 
 // function mouseDragged() {
 //   console.log(mouseX);
