@@ -10,21 +10,24 @@ var bufferZ = [];
 var plotSize = 5;
 var scaleY = 3;
 
-
 var al = 0;
-
 var bloom = 0;
 
 
-var drawBotany = false;
+// botany
+var drawBotany = 0; // 1 = true, 0 = false
 var eraseBotany = false;
-
+var type = 0;
+var n = 0;
+var c = 4;
 
 
 function setup() {
 
-  createCanvas(1200, 800); // for display graph
+  createCanvas(innerWidth, innerHeight); // for display graph
   background(51);
+  angleMode(DEGREES);
+  colorMode(HSB);
 
   pos_x = 0;
   pos_y = 0;
@@ -34,7 +37,7 @@ function setup() {
 function draw() {
     
     // background(200, 155 + random(100), random(50) + 205, 4);
-    background(back_col);
+    // background(back_col);
 
     // noStroke();
     // fill(255);
@@ -61,23 +64,37 @@ function draw() {
 
 
     // botany
-    if (drawBotany) {
+    if (drawBotany == 1) {
         
-    //    var a = n * 137.3;
-        // var a = n * 137.5;
-        var a = n * 137.6;
+        switch(type) {
+            case 0:
+                var a = n * 137.3;
+                fill(55, 100 * cos(a/3), 100);
+                break;
+            case 1:
+                var a = n * 137.5;
+                fill(5, 100 * cos(a/3), 100);
+                break;
+            case 20:
+                var a = n * 137.6;
+                fill(155, 100 * cos(a/3), 100);
+                break;
+            default:
+                var a = n * 137.6;
+                fill(155, 100 * cos(a/3), 100);
+        }
+
         var r = c * sqrt(n);
 
         var x = 2 * r * cos(a) + width/2;
         var y = 2 * r * sin(a) + height/2;
 
-        fill(155, 100 * cos(a/3) * 255, 200);
         noStroke();
             
     //    if (n % 3 == 0) {
            ellipse(x, y, random(4, 8), random(4, 10));    
     //    }
-        n++;
+        n+=1;
     } else {
         background(0);
     }
@@ -131,7 +148,8 @@ socket.on('updateBackground', function(_data) {
 
 socket.on('setBotany', function(_data) {
   console.log(_data);
-  drawBotany = _data;
+  drawBotany = _data.draw;
+  type = _data.type;
 });
 
 

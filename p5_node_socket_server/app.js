@@ -61,6 +61,19 @@ io.on('connection',  function(socket) {
     // emit to client that has specific socket id.
     // io.to(id).emit('greeting', "hi hello : " + id + " !!");
 
+    // emit to random socket cilent
+    var r = getRandomInt(socketClientList.length);
+    // console.log(r);
+    var rid = socketClientList[r];
+    // console.log(rid);
+    // io.to(rid).emit('setBotany', 1);
+    var types = [0, 1, 20];
+
+    var randEle = types[Math.floor(Math.random() * types.length)];
+
+    io.to(rid).emit('setBotany', {draw: 1, type: randEle});
+
+
 
 
     socket.on('disconnect', function () {
@@ -96,7 +109,7 @@ io.on('connection',  function(socket) {
             // console.log(r);
             var rid = socketClientList[r];
             // console.log(rid);
-            io.to(rid).emit('bloom', "bloom: " + rid + " !!");
+            io.to(rid).emit('setBotany', {draw: 1, type: 20});
 
         }
 
@@ -172,7 +185,7 @@ function checkStop(ballID, countLimit) {
     // check is stop
     if (vel_x[ballID] == 0 && vel_y[ballID] == 0 && vel_z[ballID] == 0) {
         return true;
-    } eles {
+    } else {
         return false;
     }
 
