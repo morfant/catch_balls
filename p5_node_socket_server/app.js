@@ -69,19 +69,31 @@ io.on('connection',  function(socket) {
 
     socket.on('ball_0', function(data){
         console.log("ballHandler()");
-        console.log(data);
+        // console.log(data);
 
-        var splited = data.split('/');
-        // console.log(splited);
+        var o = data.split('|')[0];
+        var a = data.split('|')[1];
+        // console.log("ori: " + o);
+        // console.log("acc: " + a);
+        var splited_o = o.split('/');
+        var splited_a = a.split('/');
+        // console.log(splited_o);
+        // console.log(splited_o[0].split('"')[1]);
+        // console.log(splited_o[1]);
+        // console.log(splited_o[2]);
+        // console.log(splited_a);
+        console.log(splited_a[0]);
+        console.log(splited_a[1]);
+        console.log(splited_a[2].split('"')[0]);
 
-        var obj = {
-            x : splited[0].slice(1, splited[0].length).toString(), 
-            y : splited[1].toString(),
-            z : splited[2].slice(0, splited[2].length - 1).toString()
-        };
+        // var obj = {
+        //     x : splited[0].slice(1, splited[0].length).toString(), 
+        //     y : splited[1].toString(),
+        //     z : splited[2].slice(0, splited[2].length - 1).toString()
+        // };
 
         // console.log(obj);
-        io.emit('pos', obj);
+        // io.emit('pos', obj);
     });
 
 

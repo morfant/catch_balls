@@ -56,11 +56,11 @@ function draw() {
     }
 
 
-    noStroke();
-    fill(255, 0, 0, al);
-    ellipse(width/2, height/2, 400, 400);
+    // noStroke();
+    // fill(255, 0, 0, al);
+    // ellipse(width/2, height/2, 400, 400);
 
-    if (frameCount % 100 == 0) al = 0;
+    // if (frameCount % 100 == 0) al = 0;
  
 }
 
