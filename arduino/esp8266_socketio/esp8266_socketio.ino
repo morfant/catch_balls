@@ -80,8 +80,8 @@ void setup() {
 void loop() {
 
 // get orientation 
-//  sensors_event_t event;
-//  bno.getEvent(&event);
+  sensors_event_t event;
+  bno.getEvent(&event);
 
 
 // get accelerometer
@@ -93,29 +93,29 @@ void loop() {
   // a : accelerometer
 
 //  String p = "\"\\\"" + String(pos[0]) + "/" + String(pos[1]) + "/" + String(pos[2]) + "\\\"\"";
-//  String o = "\"\\\"" + String(event.orientation.x) + "/" + String(event.orientation.y) + "/" + String(event.orientation.z) + "|" + String(acc.x()) + "/" + String(acc.y()) + "/" + String(acc.z()) + "\\\"\"";
-  String a = "\"\\\"" + String(acc.x()) + "/" + String(acc.y()) + "/" + String(acc.z()) + "\\\"\"";  
+  String o = "\"\\\"" + String(event.orientation.x) + "/" + String(event.orientation.y) + "/" + String(event.orientation.z) + "|" + String(acc.x()) + "/" + String(acc.y()) + "/" + String(acc.z()) + "\\\"\"";
+//  String a = "\"\\\"" + String(acc.x()) + "/" + String(acc.y()) + "/" + String(acc.z()) + "\\\"\"";  
 
   
   //  USE_SERIAL.println(p);
   
 //  int len_p = p.length() + 1;
-//  int len_o = o.length() + 1;
-  int len_a = a.length() + 1;
+  int len_o = o.length() + 1;
+//  int len_a = a.length() + 1;
   
 //  char payload_p[len_p];
-//  char payload_o[len_o];
-  char payload_a[len_a];
+  char payload_o[len_o];
+//  char payload_a[len_a];
   
 //  p.toCharArray(payload_p, len_p);
-//  o.toCharArray(payload_o, len_o);
-  a.toCharArray(payload_a, len_a);
+  o.toCharArray(payload_o, len_o);
+//  a.toCharArray(payload_a, len_a);
 
 //    USE_SERIAL.println(payload_o);
 
 //  webSocket.emit(SOCKET_ID, payload_p);
-//  webSocket.emit(SOCKET_ID, payload_o);
-  webSocket.emit(SOCKET_ID, payload_a); 
+  webSocket.emit(SOCKET_ID, payload_o);
+//  webSocket.emit(SOCKET_ID, payload_a); 
 
   delay(10);
 
