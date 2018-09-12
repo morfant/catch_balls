@@ -12,6 +12,9 @@ var acc_x_buffer = [[0], [0], [0], [0]];
 var acc_y_buffer = [[0], [0], [0], [0]];
 var acc_z_buffer = [[0], [0], [0], [0]];
 
+var ori_obj = [{}, {}, {}, {}];
+var acc_obj = [{}, {}, {}, {}];
+
 var vel_x = [[0], [0], [0], [0]];
 var vel_y = [[0], [0], [0], [0]];
 var vel_z = [[0], [0], [0], [0]];
@@ -71,7 +74,8 @@ io.on('connection',  function(socket) {
 
     var randEle = types[Math.floor(Math.random() * types.length)];
 
-    io.to(rid).emit('setBotany', {draw: 1, type: randEle});
+    // send 'setBotany' to draw
+    // io.to(rid).emit('setBotany', {draw: 1, type: randEle});
 
 
 
@@ -91,27 +95,26 @@ io.on('connection',  function(socket) {
     socket.on('ball_0', function(data){
         
 
-        console.log("ballHandler()");
+        // console.log("ballHandler()");
         // console.log(data);
 
-        var o = data.split('|')[0];
-        var a = data.split('|')[1];
+        // split by '|'
+        var o = data.split('|')[0]; // orientation
+        var a = data.split('|')[1]; // accelerometer
         // console.log("ori: " + o);
         // console.log("acc: " + a);
-        var splited_o = o.split('/');
-        var splited_a = a.split('/');
-        // console.log(splited_o);
-        // console.log(splited_o[0].split('"')[1]);
-        // console.log(splited_o[1]);
-        // console.log(splited_o[2]);
-        // console.log(splited_a);
-        console.log(splited_a[0]);
-        console.log(splited_a[1]);
-        console.log(splited_a[2].split('"')[0]);
-        console.log(data);
 
         var ballID = 0;
-        var acc_obj = makeDataToObj(data); // it should change to be more simple process.
+        ori_obj[ballID] = makeOriObj(o, 3); // it should change to be more simple process.
+        acc_obj[ballID] = makeAccObj(a, 3); // it should change to be more simple process.
+
+
+        // console.log(acc_obj[ballID]);
+
+        // send for drawing graph
+        io.emit('acc', acc_obj[ballID]);
+        io.emit('ori', ori_obj[ballID]);
+
         // takeSamples(ballID, acc_obj, 20);
 
         isStop[ballID] = checkStop(ballID, 25);
@@ -119,13 +122,16 @@ io.on('connection',  function(socket) {
    
         // when ball is stop..
         if (isStop[ballID]) {
+            console.log("ball " + ballID + " is stopped!!!!")
 
             // emit to random socket cilent
-            var r = getRandomInt(socketClientList.length);
+            // var r = getRandomInt(socketClientList.length);
             // console.log(r);
-            var rid = socketClientList[r];
+
+            // var rid = socketClientList[r];
             // console.log(rid);
-            io.to(rid).emit('setBotany', {draw: 1, type: 20});
+
+            // io.to(rid).emit('setBotany', {draw: 1, type: 20});
 
         }
 
@@ -210,14 +216,34 @@ function checkStop(ballID, countLimit) {
 
 }
 
-function makeDataToObj(data) {
+function makeOriObj(data, thr) {
     var splited = data.split('/');
-    // console.log(splited);
 
     var obj = {
-        x : splited[0].slice(1, splited[0].length).toString(), 
-        y : splited[1].toString(),
-        z : splited[2].slice(0, splited[2].length - 1).toString()
+        x : splited[0].split('"')[1], 
+        y : splited[1],
+        z : splited[2]
+    };
+
+    // discrimination : regard too small value as zero.
+    for (var key in obj) {
+        if ((obj[key] <= thr) && (obj[key] >= -thr)) {
+            obj[key] = 0;
+        }
+    }
+
+    return obj;
+
+}
+
+
+function makeAccObj(data, thr) {
+    var splited = data.split('/');
+
+    var obj = {
+        x : splited[0], 
+        y : splited[1],
+        z : splited[2].split('"')[0]
     };
 
     // discrimination : regard too small value as zero.

@@ -1,12 +1,16 @@
 var back_col = 0;
-var pos_x, pos_y, pos_z;
+var acc_x, acc_y, acc_z;
 
 var socket = io.connect();
 
+var bufferOriX = [];
+var bufferOriY = [];
+var bufferOriZ = [];
 
-var bufferX = [];
-var bufferY = [];
-var bufferZ = [];
+var bufferAccX = [];
+var bufferAccY = [];
+var bufferAccZ = [];
+
 var plotSize = 5;
 var scaleY = 3;
 
@@ -27,7 +31,6 @@ function setup() {
   createCanvas(innerWidth, innerHeight); // for display graph
   background(51);
   angleMode(DEGREES);
-  colorMode(HSB);
 
   pos_x = 0;
   pos_y = 0;
@@ -47,19 +50,33 @@ function draw() {
 
     // Graph
     // horizontal zero line
-    // stroke(255);
+    colorMode(RGB);
+    background(0);
+    stroke(255);
     line(0, height/2, width, height/2);
 
     noStroke();
 
-    for (var i = 0; i < bufferX.length; i++) {
-        fill(255, 0, 0);
-        ellipse(i, height/2 - bufferX[i] * scaleY, plotSize, plotSize);
-        fill(0, 255, 0);
-        ellipse(i, height/2 - bufferY[i] * scaleY, plotSize, plotSize);
-        fill(0, 0, 255);
-        ellipse(i, height/2 - bufferZ[i] * scaleY, plotSize, plotSize);
+    for (var i = 0; i < bufferOriX.length; i++) {
+        fill(255, 100, 0);
+        ellipse(i, height/2 - bufferOriX[i] * scaleY, plotSize/2, plotSize/2);
+        fill(200, 255, 100);
+        ellipse(i, height/2 - bufferOriY[i] * scaleY, plotSize/2, plotSize/2);
+        fill(100, 0, 255);
+        ellipse(i, height/2 - bufferOriZ[i] * scaleY, plotSize/2, plotSize/2);
     }
+
+
+    for (var i = 0; i < bufferAccX.length; i++) {
+        fill(255, 0, 0);
+        ellipse(i, height/2 - bufferAccX[i] * scaleY, plotSize, plotSize);
+        fill(0, 255, 0);
+        ellipse(i, height/2 - bufferAccY[i] * scaleY, plotSize, plotSize);
+        fill(0, 0, 255);
+        ellipse(i, height/2 - bufferAccZ[i] * scaleY, plotSize, plotSize);
+    }
+
+
 
 
     // noStroke();
@@ -68,6 +85,7 @@ function draw() {
 
     // botany
     if (drawBotany == 1) {
+        colorMode(HSB);
         
         switch(type) {
             case 0:
@@ -99,16 +117,16 @@ function draw() {
     //    }
         n+=1;
     } else {
-        background(0);
+        // background(0);
     }
 
 
 
 
     // test red ellipse
-    noStroke();
-    fill(255, 0, 0, al);
-    ellipse(width/2, height/2, 400, 400);
+    // noStroke();
+    // fill(255, 0, 0, al);
+    // ellipse(width/2, height/2, 400, 400);
 
     // if (frameCount % 100 == 0) al = 0;
  
@@ -116,32 +134,41 @@ function draw() {
 
 
 // socket.io callback
-socket.on('pos', function(_data) { // position
-    // console.log("get pos()")
-    // console.log(_data);
-
-    pos_x = _data.x;
-    pos_y = _data.y;
-    pos_z = _data.z;
-    // console.log(pos_x + " / " + pos_y + " / " + pos_z)
-
-    bufferX.push(pos_x);
-    bufferY.push(pos_y);
-    bufferZ.push(pos_z);
-    if (bufferX.length > 1024) bufferX.shift();
-    if (bufferY.length > 1024) bufferY.shift();
-    if (bufferZ.length > 1024) bufferZ.shift();
-
-});
-
-socket.on('orient', function(_data) { // orientation
-    console.log("get orientation()")
+socket.on('ori', function(_data) { // orientation
+    // console.log("get orientation()")
     ori_x = _data.x;
     ori_y = _data.y;
     ori_z = _data.z;
-    console.log(ori_x + " / " + ori_y + " / " + ori_z)
+    // console.log(ori_x + " / " + ori_y + " / " + ori_z)
+
+    bufferOriX.push(ori_x);
+    bufferOriY.push(ori_y);
+    bufferOriZ.push(ori_z);
+    if (bufferOriX.length > 1024) bufferOriX.shift();
+    if (bufferOriY.length > 1024) bufferOriY.shift();
+    if (bufferOriZ.length > 1024) bufferOriZ.shift();
+
+
 });
 
+
+socket.on('acc', function(_data) { // position
+    // console.log("get acc from client()")
+    // console.log(_data);
+
+    acc_x = _data.x;
+    acc_y = _data.y;
+    acc_z = _data.z;
+    // console.log(acc_x + " / " + acc_y + " / " + acc_z)
+
+    bufferAccX.push(acc_x);
+    bufferAccY.push(acc_y);
+    bufferAccZ.push(acc_z);
+    if (bufferAccX.length > 1024) bufferAccX.shift();
+    if (bufferAccY.length > 1024) bufferAccY.shift();
+    if (bufferAccZ.length > 1024) bufferAccZ.shift();
+
+});
 
 socket.on('updateBackground', function(_data) {
   console.log(_data);
