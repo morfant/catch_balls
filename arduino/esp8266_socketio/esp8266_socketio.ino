@@ -8,50 +8,50 @@
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
 
-#define USE_SERIAL Serial
+//#define USE_SERIAL Serial
 
 ESP8266WiFiMulti WiFiMulti;
 SocketIoClient webSocket;
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
 
+//const char * SOCKET_ID = "ball_0";
+//const char * SOCKET_ID = "ball_1";
+//const char * SOCKET_ID = "ball_2";
+const char * SOCKET_ID = "ball_3";
 
-const char * SOCKET_ID = "ball_0";
-
-int pos[3] = {};
-
-void event(const char * payload, size_t length) {
-  USE_SERIAL.printf("got message: %s\n", payload);
-}
+//void event(const char * payload, size_t length) {
+//  USE_SERIAL.printf("got message: %s\n", payload);
+//}
 
 void setup() {
-  USE_SERIAL.begin(115200);
+//  USE_SERIAL.begin(115200);
 
-  USE_SERIAL.setDebugOutput(true);
+//  USE_SERIAL.setDebugOutput(true);
 
-  USE_SERIAL.println();
-  USE_SERIAL.println();
-  USE_SERIAL.println();
+//  USE_SERIAL.println();
+//  USE_SERIAL.println();
+//  USE_SERIAL.println();
 
-  USE_SERIAL.println("start.....");
+//  USE_SERIAL.println("start.....");
 
-  for (uint8_t t = 4; t > 0; t--) {
-    USE_SERIAL.printf("[SETUP] BOOT WAIT %d...\n", t);
-    USE_SERIAL.flush();
-    delay(1000);
-  }
+//  for (uint8_t t = 4; t > 0; t--) {
+//    USE_SERIAL.printf("[SETUP] BOOT WAIT %d...\n", t);
+//    USE_SERIAL.flush();
+//    delay(1000);
+//  }
 
-  USE_SERIAL.println("after forloop!");
+//  USE_SERIAL.println("after forloop!");
 
     // Set wifi info
     WiFiMulti.addAP("jjwc", "akdyspwm");
 //  WiFiMulti.addAP("pa-do", "jeokpa-do");
 
   while (WiFiMulti.run() != WL_CONNECTED) {
-    USE_SERIAL.printf("wifi not connected!");
+//    USE_SERIAL.printf("wifi not connected!");
     delay(100);
   }
 
-  USE_SERIAL.println("after wifi connection!");
+//  USE_SERIAL.println("after wifi connection!");
 
   //    webSocket.on("event", event);
 
@@ -60,17 +60,18 @@ void setup() {
     webSocket.begin("192.168.0.37", 3000);
 //  webSocket.begin("192.168.0.5", 3000);
 
-  USE_SERIAL.println("websocket began!");
+//  USE_SERIAL.println("websocket began!");
 
 
   if (!bno.begin())
   {
     /* There was a problem detecting the BNO055 ... check your connections */
-    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+//    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
     while (1);
   }
 
-  delay(1000);
+//  delay(1000);
+  delay(500);
 
   bno.setExtCrystalUse(true);
 

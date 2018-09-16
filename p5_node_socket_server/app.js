@@ -93,7 +93,6 @@ io.on('connection',  function(socket) {
 
 
     socket.on('ball_0', function(data){
-        
 
         // console.log("ballHandler()");
         // console.log(data);
@@ -117,7 +116,7 @@ io.on('connection',  function(socket) {
 
         // takeSamples(ballID, acc_obj, 20);
 
-        isStop[ballID] = checkStop(ballID, 25);
+        // isStop[ballID] = checkStop(ballID, 25);
 
    
         // when ball is stop..
@@ -160,6 +159,214 @@ io.on('connection',  function(socket) {
         // io.emit('pos', obj);
 
     });
+
+    socket.on('ball_1', function(data){
+        
+
+        // console.log("ballHandler()");
+        // console.log(data);
+
+        // split by '|'
+        var o = data.split('|')[0]; // orientation
+        var a = data.split('|')[1]; // accelerometer
+        // console.log("ori: " + o);
+        // console.log("acc: " + a);
+
+        var ballID = 0;
+        ori_obj[ballID] = makeOriObj(o, 3); // it should change to be more simple process.
+        acc_obj[ballID] = makeAccObj(a, 3); // it should change to be more simple process.
+
+
+        // console.log(acc_obj[ballID]);
+
+        // send for drawing graph
+        io.emit('acc', acc_obj[ballID]);
+        io.emit('ori', ori_obj[ballID]);
+
+        // takeSamples(ballID, acc_obj, 20);
+
+        // isStop[ballID] = checkStop(ballID, 25);
+
+   
+        // when ball is stop..
+        if (isStop[ballID]) {
+            console.log("ball " + ballID + " is stopped!!!!")
+
+            // emit to random socket cilent
+            // var r = getRandomInt(socketClientList.length);
+            // console.log(r);
+
+            // var rid = socketClientList[r];
+            // console.log(rid);
+
+            // io.to(rid).emit('setBotany', {draw: 1, type: 20});
+
+        }
+
+        
+        // var splited = data.split('/');
+        // // console.log(splited);
+
+        // var obj = {
+        //     x : splited[0].slice(1, splited[0].length).toString(), 
+        //     y : splited[1].toString(),
+        //     z : splited[2].slice(0, splited[2].length - 1).toString()
+        // };
+
+        // console.log(obj);
+        // io.emit('pos', obj);
+
+        // taking 20 samples
+        // acc_x_buffer[ballID].push(obj.x);
+        // acc_y_buffer[ballID].push(obj.y);
+        // acc_z_buffer[ballID].push(obj.z);
+        // if (acc_x_buffer[ballID].length > 20) acc_x_buffer[ballID].shift();
+        // if (acc_y_buffer[ballID].length > 20) acc_y_buffer[ballID].shift();
+        // if (acc_z_buffer[ballID].length > 20) acc_z_buffer[ballID].shift();
+
+        // console.log(obj);
+        // io.emit('pos', obj);
+
+    });
+
+    socket.on('ball_2', function(data){
+
+        // console.log("ballHandler()");
+        // console.log(data);
+
+        // split by '|'
+        var o = data.split('|')[0]; // orientation
+        var a = data.split('|')[1]; // accelerometer
+        // console.log("ori: " + o);
+        // console.log("acc: " + a);
+
+        var ballID = 0;
+        ori_obj[ballID] = makeOriObj(o, 3); // it should change to be more simple process.
+        acc_obj[ballID] = makeAccObj(a, 3); // it should change to be more simple process.
+
+
+        // console.log(acc_obj[ballID]);
+
+        // send for drawing graph
+        io.emit('acc', acc_obj[ballID]);
+        io.emit('ori', ori_obj[ballID]);
+
+        // takeSamples(ballID, acc_obj, 20);
+
+        // isStop[ballID] = checkStop(ballID, 25);
+
+   
+        // when ball is stop..
+        if (isStop[ballID]) {
+            console.log("ball " + ballID + " is stopped!!!!")
+
+            // emit to random socket cilent
+            // var r = getRandomInt(socketClientList.length);
+            // console.log(r);
+
+            // var rid = socketClientList[r];
+            // console.log(rid);
+
+            // io.to(rid).emit('setBotany', {draw: 1, type: 20});
+
+        }
+
+        
+        // var splited = data.split('/');
+        // // console.log(splited);
+
+        // var obj = {
+        //     x : splited[0].slice(1, splited[0].length).toString(), 
+        //     y : splited[1].toString(),
+        //     z : splited[2].slice(0, splited[2].length - 1).toString()
+        // };
+
+        // console.log(obj);
+        // io.emit('pos', obj);
+
+        // taking 20 samples
+        // acc_x_buffer[ballID].push(obj.x);
+        // acc_y_buffer[ballID].push(obj.y);
+        // acc_z_buffer[ballID].push(obj.z);
+        // if (acc_x_buffer[ballID].length > 20) acc_x_buffer[ballID].shift();
+        // if (acc_y_buffer[ballID].length > 20) acc_y_buffer[ballID].shift();
+        // if (acc_z_buffer[ballID].length > 20) acc_z_buffer[ballID].shift();
+
+        // console.log(obj);
+        // io.emit('pos', obj);
+
+    });
+
+    socket.on('ball_3', function(data){
+
+        // console.log("ballHandler()");
+        // console.log(data);
+
+        // split by '|'
+        var o = data.split('|')[0]; // orientation
+        var a = data.split('|')[1]; // accelerometer
+        // console.log("ori: " + o);
+        // console.log("acc: " + a);
+
+        var ballID = 0;
+        ori_obj[ballID] = makeOriObj(o, 3); // it should change to be more simple process.
+        acc_obj[ballID] = makeAccObj(a, 3); // it should change to be more simple process.
+
+
+        // console.log(acc_obj[ballID]);
+
+        // send for drawing graph
+        io.emit('acc', acc_obj[ballID]);
+        io.emit('ori', ori_obj[ballID]);
+
+        // takeSamples(ballID, acc_obj, 20);
+
+        // isStop[ballID] = checkStop(ballID, 25);
+
+   
+        // when ball is stop..
+        if (isStop[ballID]) {
+            console.log("ball " + ballID + " is stopped!!!!")
+
+            // emit to random socket cilent
+            // var r = getRandomInt(socketClientList.length);
+            // console.log(r);
+
+            // var rid = socketClientList[r];
+            // console.log(rid);
+
+            // io.to(rid).emit('setBotany', {draw: 1, type: 20});
+
+        }
+
+        
+        // var splited = data.split('/');
+        // // console.log(splited);
+
+        // var obj = {
+        //     x : splited[0].slice(1, splited[0].length).toString(), 
+        //     y : splited[1].toString(),
+        //     z : splited[2].slice(0, splited[2].length - 1).toString()
+        // };
+
+        // console.log(obj);
+        // io.emit('pos', obj);
+
+        // taking 20 samples
+        // acc_x_buffer[ballID].push(obj.x);
+        // acc_y_buffer[ballID].push(obj.y);
+        // acc_z_buffer[ballID].push(obj.z);
+        // if (acc_x_buffer[ballID].length > 20) acc_x_buffer[ballID].shift();
+        // if (acc_y_buffer[ballID].length > 20) acc_y_buffer[ballID].shift();
+        // if (acc_z_buffer[ballID].length > 20) acc_z_buffer[ballID].shift();
+
+        // console.log(obj);
+        // io.emit('pos', obj);
+
+    });
+
+
+
 
 
 
