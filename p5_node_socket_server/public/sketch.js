@@ -1,16 +1,9 @@
 var back_col = 0;
-var acc_x, acc_y, acc_z;
-
 var socket = io.connect();
 
-var bufferOriX = [];
-var bufferOriY = [];
-var bufferOriZ = [];
-
-var bufferAccX = [];
-var bufferAccY = [];
-var bufferAccZ = [];
-
+var bufferBallsOri = [[[],[],[]], [[],[],[]], [[],[],[]], [[],[],[]]]; // [ballID][axis: x, y, z]
+var bufferBallsAcc = [[[],[],[]], [[],[],[]], [[],[],[]], [[],[],[]]];
+var bufLen = 512;
 var plotSize = 5;
 var scaleY = 3;
 
@@ -57,27 +50,32 @@ function draw() {
 
     noStroke();
 
-    for (var i = 0; i < bufferOriX.length; i++) {
-        fill(255, 100, 0);
-        ellipse(i, height/2 - bufferOriX[i] * scaleY, plotSize/2, plotSize/2);
-        fill(200, 255, 100);
-        ellipse(i, height/2 - bufferOriY[i] * scaleY, plotSize/2, plotSize/2);
-        fill(100, 0, 255);
-        ellipse(i, height/2 - bufferOriZ[i] * scaleY, plotSize/2, plotSize/2);
+    colorMode(HSB);
+    for (var i = 0; i < 4; i++) {
+        for (var j = 0; j < bufferBallsOri[i][0].length; j++) {
+
+            // Orientation
+            fill((255/(i+1)), 100, 100);
+            ellipse(j, height/2 - bufferBallsOri[i][0][j] * scaleY, plotSize/2, plotSize/2);
+            fill((255/(i+1)) + 30, 100, 100);
+            ellipse(j, height/2 - bufferBallsOri[i][1][j] * scaleY, plotSize/2, plotSize/2);
+            fill((255/(i+1)) + 60, 100, 100);
+            ellipse(j, height/2 - bufferBallsOri[i][2][j] * scaleY, plotSize/2, plotSize/2);
+
+            // Acceleration
+            fill((255/(i+1)), 100, 100);
+            ellipse(j, height/2 - bufferBallsAcc[i][0][j] * scaleY, plotSize/2, plotSize/2);
+            fill((255/(i+1)) + 20, 100, 100);
+            ellipse(j, height/2 - bufferBallsAcc[i][1][j] * scaleY, plotSize/2, plotSize/2);
+            fill((255/(i+1)) + 40, 100, 100);
+            ellipse(j, height/2 - bufferBallsAcc[i][2][j] * scaleY, plotSize/2, plotSize/2);
+
+
+            // Velocity ? : using integral
+
+
+        }
     }
-
-
-    for (var i = 0; i < bufferAccX.length; i++) {
-        fill(255, 0, 0);
-        ellipse(i, height/2 - bufferAccX[i] * scaleY, plotSize, plotSize);
-        fill(0, 255, 0);
-        ellipse(i, height/2 - bufferAccY[i] * scaleY, plotSize, plotSize);
-        fill(0, 0, 255);
-        ellipse(i, height/2 - bufferAccZ[i] * scaleY, plotSize, plotSize);
-    }
-
-
-
 
     // noStroke();
     // fill(255, 0, 0, al);
@@ -134,41 +132,76 @@ function draw() {
 
 
 // socket.io callback
-socket.on('ori', function(_data) { // orientation
-    // console.log("get orientation()")
-    ori_x = _data.x;
-    ori_y = _data.y;
-    ori_z = _data.z;
-    // console.log(ori_x + " / " + ori_y + " / " + ori_z)
-
-    bufferOriX.push(ori_x);
-    bufferOriY.push(ori_y);
-    bufferOriZ.push(ori_z);
-    if (bufferOriX.length > 1024) bufferOriX.shift();
-    if (bufferOriY.length > 1024) bufferOriY.shift();
-    if (bufferOriZ.length > 1024) bufferOriZ.shift();
-
-
+socket.on('ori0', function(_data) {
+    storeOrientation(0, _data);
 });
 
-
-socket.on('acc', function(_data) { // position
+socket.on('acc0', function(_data) {
     // console.log("get acc from client()")
     // console.log(_data);
-
-    acc_x = _data.x;
-    acc_y = _data.y;
-    acc_z = _data.z;
-    // console.log(acc_x + " / " + acc_y + " / " + acc_z)
-
-    bufferAccX.push(acc_x);
-    bufferAccY.push(acc_y);
-    bufferAccZ.push(acc_z);
-    if (bufferAccX.length > 1024) bufferAccX.shift();
-    if (bufferAccY.length > 1024) bufferAccY.shift();
-    if (bufferAccZ.length > 1024) bufferAccZ.shift();
-
+    storeAcceleration(0, _data);
 });
+
+socket.on('ori1', function(_data) {
+    // console.log("get ori of ball 1 from client()");
+    // console.log(_data);
+    storeOrientation(1, _data);
+});
+
+socket.on('acc1', function(_data) {
+    // console.log("get acc of ball 1 from client()");
+    // console.log(_data);
+    storeAcceleration(1, _data);
+});
+
+socket.on('ori2', function(_data) {
+    // console.log("get ori of ball 2 from client()");
+    // console.log(_data);
+    storeOrientation(2, _data);
+});
+
+socket.on('acc2', function(_data) {
+    // console.log("get acc of ball 2 from client()");
+    // console.log(_data);
+    storeAcceleration(2, _data);
+});
+
+socket.on('ori3', function(_data) {
+    // console.log("get ori of ball 3 from client()");
+    // console.log(_data);
+    storeOrientation(3, _data);
+});
+
+socket.on('acc3', function(_data) { 
+    // console.log("get acc of ball 3 from client()");
+    // console.log(_data);
+    storeAcceleration(3, _data);
+});
+
+
+function storeOrientation(ball_id, _data) {
+
+    bufferBallsOri[ball_id][0].push(_data.x);
+    bufferBallsOri[ball_id][1].push(_data.y);
+    bufferBallsOri[ball_id][2].push(_data.z);
+    if (bufferBallsOri[ball_id][0].length > bufLen) bufferBallsOri[ball_id][0].shift();
+    if (bufferBallsOri[ball_id][1].length > bufLen) bufferBallsOri[ball_id][1].shift();
+    if (bufferBallsOri[ball_id][2].length > bufLen) bufferBallsOri[ball_id][2].shift();
+
+
+}
+
+function storeAcceleration(ball_id, _data) {
+
+    bufferBallsAcc[ball_id][0].push(_data.x);
+    bufferBallsAcc[ball_id][1].push(_data.y);
+    bufferBallsAcc[ball_id][2].push(_data.z);
+    if (bufferBallsAcc[ball_id][0].length > bufLen) bufferBallsAcc[ball_id][0].shift();
+    if (bufferBallsAcc[ball_id][1].length > bufLen) bufferBallsAcc[ball_id][1].shift();
+    if (bufferBallsAcc[ball_id][2].length > bufLen) bufferBallsAcc[ball_id][2].shift();
+
+}
+
 
 socket.on('updateBackground', function(_data) {
   console.log(_data);

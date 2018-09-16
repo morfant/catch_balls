@@ -94,6 +94,7 @@ io.on('connection',  function(socket) {
 
     socket.on('ball_0', function(data){
 
+        var ballID = 0;
         // console.log("ballHandler()");
         // console.log(data);
 
@@ -103,7 +104,6 @@ io.on('connection',  function(socket) {
         // console.log("ori: " + o);
         // console.log("acc: " + a);
 
-        var ballID = 0;
         ori_obj[ballID] = makeOriObj(o, 3); // it should change to be more simple process.
         acc_obj[ballID] = makeAccObj(a, 3); // it should change to be more simple process.
 
@@ -111,8 +111,8 @@ io.on('connection',  function(socket) {
         // console.log(acc_obj[ballID]);
 
         // send for drawing graph
-        io.emit('acc', acc_obj[ballID]);
-        io.emit('ori', ori_obj[ballID]);
+        io.emit('acc'+ballID, acc_obj[ballID]);
+        io.emit('ori'+ballID, ori_obj[ballID]);
 
         // takeSamples(ballID, acc_obj, 20);
 
@@ -161,6 +161,7 @@ io.on('connection',  function(socket) {
     });
 
     socket.on('ball_1', function(data){
+        var ballID = 1;
         
 
         // console.log("ballHandler()");
@@ -172,7 +173,6 @@ io.on('connection',  function(socket) {
         // console.log("ori: " + o);
         // console.log("acc: " + a);
 
-        var ballID = 0;
         ori_obj[ballID] = makeOriObj(o, 3); // it should change to be more simple process.
         acc_obj[ballID] = makeAccObj(a, 3); // it should change to be more simple process.
 
@@ -180,8 +180,8 @@ io.on('connection',  function(socket) {
         // console.log(acc_obj[ballID]);
 
         // send for drawing graph
-        io.emit('acc', acc_obj[ballID]);
-        io.emit('ori', ori_obj[ballID]);
+        io.emit('acc'+ballID, acc_obj[ballID]);
+        io.emit('ori'+ballID, ori_obj[ballID]);
 
         // takeSamples(ballID, acc_obj, 20);
 
@@ -230,6 +230,7 @@ io.on('connection',  function(socket) {
     });
 
     socket.on('ball_2', function(data){
+        var ballID = 2;
 
         // console.log("ballHandler()");
         // console.log(data);
@@ -240,7 +241,6 @@ io.on('connection',  function(socket) {
         // console.log("ori: " + o);
         // console.log("acc: " + a);
 
-        var ballID = 0;
         ori_obj[ballID] = makeOriObj(o, 3); // it should change to be more simple process.
         acc_obj[ballID] = makeAccObj(a, 3); // it should change to be more simple process.
 
@@ -248,8 +248,8 @@ io.on('connection',  function(socket) {
         // console.log(acc_obj[ballID]);
 
         // send for drawing graph
-        io.emit('acc', acc_obj[ballID]);
-        io.emit('ori', ori_obj[ballID]);
+        io.emit('acc'+ballID, acc_obj[ballID]);
+        io.emit('ori'+ballID, ori_obj[ballID]);
 
         // takeSamples(ballID, acc_obj, 20);
 
@@ -299,6 +299,7 @@ io.on('connection',  function(socket) {
 
     socket.on('ball_3', function(data){
 
+        var ballID = 3;
         // console.log("ballHandler()");
         // console.log(data);
 
@@ -308,7 +309,6 @@ io.on('connection',  function(socket) {
         // console.log("ori: " + o);
         // console.log("acc: " + a);
 
-        var ballID = 0;
         ori_obj[ballID] = makeOriObj(o, 3); // it should change to be more simple process.
         acc_obj[ballID] = makeAccObj(a, 3); // it should change to be more simple process.
 
@@ -316,8 +316,8 @@ io.on('connection',  function(socket) {
         // console.log(acc_obj[ballID]);
 
         // send for drawing graph
-        io.emit('acc', acc_obj[ballID]);
-        io.emit('ori', ori_obj[ballID]);
+        io.emit('acc'+ballID, acc_obj[ballID]);
+        io.emit('ori'+ballID, ori_obj[ballID]);
 
         // takeSamples(ballID, acc_obj, 20);
 
