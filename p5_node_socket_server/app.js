@@ -3,6 +3,7 @@ var app = express()
 var socket = require('socket.io')
 
 var server = app.listen(3000, "0.0.0.0");
+// var server = app.listen(3000, "127.0.0.1");
 var io = socket(server);
 
 var socketClientList = [];
@@ -95,7 +96,7 @@ io.on('connection',  function(socket) {
     socket.on('ball_0', function(data){
 
         var ballID = 0;
-        // console.log("ballHandler()");
+        console.log("ball_0");
         // console.log(data);
 
         // split by '|'
@@ -164,8 +165,9 @@ io.on('connection',  function(socket) {
         var ballID = 1;
         
 
+        // console.log("ball_1");
         // console.log("ballHandler()");
-        // console.log(data);
+        console.log(data);
 
         // split by '|'
         var o = data.split('|')[0]; // orientation
@@ -232,8 +234,9 @@ io.on('connection',  function(socket) {
     socket.on('ball_2', function(data){
         var ballID = 2;
 
+        console.log("ball_2");
         // console.log("ballHandler()");
-        // console.log(data);
+        console.log(data);
 
         // split by '|'
         var o = data.split('|')[0]; // orientation
@@ -300,6 +303,8 @@ io.on('connection',  function(socket) {
     socket.on('ball_3', function(data){
 
         var ballID = 3;
+
+        console.log("ball_3");
         // console.log("ballHandler()");
         // console.log(data);
 
