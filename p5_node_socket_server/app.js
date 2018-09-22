@@ -9,16 +9,36 @@ var io = socket(server);
 var socketClientList = [];
 
 
+// 4 balls each has 3 axis
+
+var acc_obj = [{}, {}, {}, {}];
+var vel_obj = [{}, {}, {}, {}];
+var ori_obj = [{}, {}, {}, {}];
+
 var acc_x_buffer = [[0], [0], [0], [0]];
 var acc_y_buffer = [[0], [0], [0], [0]];
 var acc_z_buffer = [[0], [0], [0], [0]];
 
-var ori_obj = [{}, {}, {}, {}];
-var acc_obj = [{}, {}, {}, {}];
+var acc_x_prev = [[0], [0], [0], [0]];
+var acc_y_prev = [[0], [0], [0], [0]];
+var acc_z_prev = [[0], [0], [0], [0]];
+
+var acc_x_cur = [[0], [0], [0], [0]];
+var acc_y_cur = [[0], [0], [0], [0]];
+var acc_z_cur = [[0], [0], [0], [0]];
+
+var vel_x_prev = [[0], [0], [0], [0]];
+var vel_y_prev = [[0], [0], [0], [0]];
+var vel_z_prev = [[0], [0], [0], [0]];
+
+var vel_x_cur = [[0], [0], [0], [0]];
+var vel_y_cur = [[0], [0], [0], [0]];
+var vel_z_cur = [[0], [0], [0], [0]];
 
 var vel_x = [[0], [0], [0], [0]];
 var vel_y = [[0], [0], [0], [0]];
 var vel_z = [[0], [0], [0], [0]];
+
 
 var count_x = [[0], [0], [0], [0]];
 var count_y = [[0], [0], [0], [0]];
@@ -96,7 +116,7 @@ io.on('connection',  function(socket) {
     socket.on('ball_0', function(data){
 
         var ballID = 0;
-        console.log("ball_0");
+        // console.log("ball_0");
         // console.log(data);
 
         // split by '|'
@@ -108,7 +128,6 @@ io.on('connection',  function(socket) {
         ori_obj[ballID] = makeOriObj(o, 3); // it should change to be more simple process.
         acc_obj[ballID] = makeAccObj(a, 3); // it should change to be more simple process.
 
-
         // console.log(acc_obj[ballID]);
 
         // send for drawing graph
@@ -117,9 +136,21 @@ io.on('connection',  function(socket) {
 
         // takeSamples(ballID, acc_obj, 20);
 
-        // isStop[ballID] = checkStop(ballID, 25);
 
+        // acc_x_cur[ballID] = acc_obj[ballID].x;
+        // acc_y_cur[ballID] = acc_obj[ballID].y;
+        // acc_z_cur[ballID] = acc_obj[ballID].z;
+
+        // getVel(ballID);
+
+        // vel_obj[ballID].x = vel_x_cur[ballID];
+        // vel_obj[ballID].y = vel_y_cur[ballID];
+        // vel_obj[ballID].z = vel_z_cur[ballID];
+
+        // io.emit('vel'+ballID, vel_obj[ballID]);
    
+        isStop[ballID] = checkStop(ballID, 10);
+
         // when ball is stop..
         if (isStop[ballID]) {
             console.log("ball " + ballID + " is stopped!!!!")
@@ -133,6 +164,8 @@ io.on('connection',  function(socket) {
 
             // io.to(rid).emit('setBotany', {draw: 1, type: 20});
 
+        } else {
+            console.log("ball " + ballID + " is NOT stopped!!");
         }
 
         
@@ -326,7 +359,7 @@ io.on('connection',  function(socket) {
 
         // takeSamples(ballID, acc_obj, 20);
 
-        // isStop[ballID] = checkStop(ballID, 25);
+        isStop[ballID] = checkStop(ballID, 25);
 
    
         // when ball is stop..
@@ -437,7 +470,7 @@ function makeOriObj(data, thr) {
         z : splited[2]
     };
 
-    // discrimination : regard too small value as zero.
+    // discrimination : regards too small value as zero.
     for (var key in obj) {
         if ((obj[key] <= thr) && (obj[key] >= -thr)) {
             obj[key] = 0;
@@ -468,6 +501,52 @@ function makeAccObj(data, thr) {
     return obj;
 
 }
+
+function getVel(ballID) {
+    // console.log("getVel()");
+    // console.log( acc_x_prev[ballID] );
+    // console.log( acc_x_cur[ballID] );
+
+    // var a = ( Number(acc_x_prev[ballID]) + Number(acc_x_cur[ballID]) >> 1 ); // result as int
+    // var a = ( (Number(acc_x_prev[ballID]) + Number(acc_x_cur[ballID]))/2 ); // result as float
+    // var a = ( (parseFloat(acc_x_prev[ballID]) + parseFloat(acc_x_cur[ballID])) >> 1 );
+    // console.log("sum:" + a);
+
+    // console.log( ((acc_x_prev[ballID] + acc_x_cur[ballID]) >> 1));
+    // var d = 0;
+    // if (acc_x_prev[ballID] != 0 || acc_x_cur[ballID] != 0) {
+    //     d = (acc_x_prev[ballID] + acc_x_cur[ballID]) / 2;
+    // }
+    // console.log( d );
+    // console.log(parseFloat(vel_x_prev[ballID]));
+    // console.log(parseFloat(acc_x_prev[ballID]));
+    // console.log(parseFloat(acc_x_cur[ballID]));
+
+    // vel_x_cur[ballID] = parseFloat(vel_x_prev[ballID]) + parseFloat(acc_x_prev[ballID]) + ( (parseFloat(acc_x_prev[ballID]) + parseFloat(acc_x_cur[ballID])) >> 1);
+    // vel_y_cur[ballID] = parseFloat(vel_y_prev[ballID]) + parseFloat(acc_y_prev[ballID]) + ( (parseFloat(acc_y_prev[ballID]) + parseFloat(acc_y_cur[ballID])) >> 1);
+    // vel_z_cur[ballID] = parseFloat(vel_z_prev[ballID]) + parseFloat(acc_z_prev[ballID]) + ( (parseFloat(acc_z_prev[ballID]) + parseFloat(acc_z_cur[ballID])) >> 1);
+
+    vel_x_cur[ballID] = parseFloat(acc_x_prev[ballID]) + ( (parseFloat(acc_x_prev[ballID]) + parseFloat(acc_x_cur[ballID])) >> 1);
+    vel_y_cur[ballID] = parseFloat(acc_y_prev[ballID]) + ( (parseFloat(acc_y_prev[ballID]) + parseFloat(acc_y_cur[ballID])) >> 1);
+    vel_z_cur[ballID] = parseFloat(acc_z_prev[ballID]) + ( (parseFloat(acc_z_prev[ballID]) + parseFloat(acc_z_cur[ballID])) >> 1);
+
+
+    // console.log("vel: " + vel_x_cur[ballID]);
+
+    vel_x_prev[ballID] = vel_x_cur[ballID];
+    vel_y_prev[ballID] = vel_y_cur[ballID];
+    vel_z_prev[ballID] = vel_z_cur[ballID];
+
+    acc_x_prev[ballID] = acc_x_cur[ballID];
+    acc_y_prev[ballID] = acc_y_cur[ballID];
+    acc_z_prev[ballID] = acc_z_cur[ballID];
+
+}
+
+
+
+
+
 
 console.log("server is running..");
 

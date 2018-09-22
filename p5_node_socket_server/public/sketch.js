@@ -3,6 +3,7 @@ var socket = io.connect();
 
 var bufferBallsOri = [[[],[],[]], [[],[],[]], [[],[],[]], [[],[],[]]]; // [ballID][axis: x, y, z]
 var bufferBallsAcc = [[[],[],[]], [[],[],[]], [[],[],[]], [[],[],[]]];
+var bufferBallsVel = [[[],[],[]], [[],[],[]], [[],[],[]], [[],[],[]]];
 var bufLen = 512;
 var plotSize = 5;
 var scaleY = 3;
@@ -55,12 +56,13 @@ function draw() {
         for (var j = 0; j < bufferBallsOri[i][0].length; j++) {
 
             // Orientation
-            fill((255/(i+1)), 100, 100);
-            ellipse(j, height/2 - bufferBallsOri[i][0][j] * scaleY, plotSize/2, plotSize/2);
-            fill((255/(i+1)) + 30, 100, 100);
-            ellipse(j, height/2 - bufferBallsOri[i][1][j] * scaleY, plotSize/2, plotSize/2);
-            fill((255/(i+1)) + 60, 100, 100);
-            ellipse(j, height/2 - bufferBallsOri[i][2][j] * scaleY, plotSize/2, plotSize/2);
+            // fill((255/(i+1)), 100, 100);
+            // ellipse(j, height/2 - bufferBallsOri[i][0][j] * scaleY, plotSize/2, plotSize/2);
+            // fill((255/(i+1)) + 30, 100, 100);
+            // ellipse(j, height/2 - bufferBallsOri[i][1][j] * scaleY, plotSize/2, plotSize/2);
+            // fill((255/(i+1)) + 60, 100, 100);
+            // ellipse(j, height/2 - bufferBallsOri[i][2][j] * scaleY, plotSize/2, plotSize/2);
+
 
             // Acceleration
             fill((255/(i+1)), 100, 100);
@@ -72,6 +74,14 @@ function draw() {
 
 
             // Velocity ? : using integral
+            fill((155/(i+1)), 10, 100);
+            ellipse(j, height/2 - bufferBallsVel[i][0][j] * scaleY, plotSize/2, plotSize/2);
+            fill((155/(i+1)) + 20, 10, 100);
+            ellipse(j, height/2 - bufferBallsVel[i][1][j] * scaleY, plotSize/2, plotSize/2);
+            fill((155/(i+1)) + 40, 10, 100);
+            ellipse(j, height/2 - bufferBallsVel[i][2][j] * scaleY, plotSize/2, plotSize/2);
+
+
 
 
         }
@@ -179,6 +189,16 @@ socket.on('acc3', function(_data) {
 });
 
 
+
+socket.on('vel0', function(_data) { 
+    // console.log("get vel of ball 0 from client()");
+    console.log(_data);
+    storeVelocity(0, _data);
+});
+
+
+
+
 function storeOrientation(ball_id, _data) {
 
     bufferBallsOri[ball_id][0].push(_data.x);
@@ -202,6 +222,16 @@ function storeAcceleration(ball_id, _data) {
 
 }
 
+function storeVelocity(ball_id, _data) {
+
+    bufferBallsVel[ball_id][0].push(_data.x);
+    bufferBallsVel[ball_id][1].push(_data.y);
+    bufferBallsVel[ball_id][2].push(_data.z);
+    if (bufferBallsVel[ball_id][0].length > bufLen) bufferBallsVel[ball_id][0].shift();
+    if (bufferBallsVel[ball_id][1].length > bufLen) bufferBallsVel[ball_id][1].shift();
+    if (bufferBallsVel[ball_id][2].length > bufLen) bufferBallsVel[ball_id][2].shift();
+
+}
 
 socket.on('updateBackground', function(_data) {
   console.log(_data);
