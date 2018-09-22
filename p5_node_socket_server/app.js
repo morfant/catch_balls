@@ -1,12 +1,38 @@
 var express = require('express')
 var app = express()
 var socket = require('socket.io')
+var osc = require('osc')
 
 var server = app.listen(3000, "0.0.0.0");
 // var server = app.listen(3000, "127.0.0.1");
 var io = socket(server);
-
 var socketClientList = [];
+
+var udpPort = new osc.UDPPort({
+    localAddress: "0.0.0.0",
+    localPort: 50000,
+    metadata: true
+});
+
+// osc
+udpPort.open();
+
+
+// control sc server directly
+// udpPort.send({
+//     address: "/s_new",
+//     args: [
+//         {
+//             type: "s",
+//             value: "default"
+//         },
+//         {
+//             type: "i",
+//             value: 100
+//         }
+//     ]
+// }, "127.0.0.1", 57110);
+
 
 
 // 4 balls each has 3 axis
@@ -99,6 +125,13 @@ io.on('connection',  function(socket) {
     // io.to(rid).emit('setBotany', {draw: 1, type: randEle});
 
 
+    // var buf = Buffer.from('hello sc');
+    // var data = '123';
+
+    // client.send(['/fromNode', data], 57120, 'localhost', (err) => {
+    //     client.close();
+    // });
+
 
 
     socket.on('disconnect', function () {
@@ -126,7 +159,7 @@ io.on('connection',  function(socket) {
         // console.log("acc: " + a);
 
         ori_obj[ballID] = makeOriObj(o, 3); // it should change to be more simple process.
-        acc_obj[ballID] = makeAccObj(a, 3); // it should change to be more simple process.
+        acc_obj[ballID] = makeAccObj(a, 6); // (obj, threshold to zero)
 
         // console.log(acc_obj[ballID]);
 
@@ -149,11 +182,23 @@ io.on('connection',  function(socket) {
 
         // io.emit('vel'+ballID, vel_obj[ballID]);
    
-        isStop[ballID] = checkStop(ballID, 10);
+        isStop[ballID] = checkStop(ballID, 1);
 
         // when ball is stop..
         if (isStop[ballID]) {
-            console.log("ball " + ballID + " is stopped!!!!")
+            // console.log("ball " + ballID + " is stopped!!!!")
+
+            // udpPort.send({
+            //     address: "/isBallStopped",
+            //     args: [
+            //         {
+            //             type: "i",
+            //             value: 0 
+            //         },
+            //     ]
+            // }, "127.0.0.1", 57120);
+
+
 
             // emit to random socket cilent
             // var r = getRandomInt(socketClientList.length);
@@ -165,7 +210,22 @@ io.on('connection',  function(socket) {
             // io.to(rid).emit('setBotany', {draw: 1, type: 20});
 
         } else {
-            console.log("ball " + ballID + " is NOT stopped!!");
+            // console.log("ball " + ballID + " is NOT stopped!!");
+            udpPort.send({
+                address: "/isBallStopped",
+                args: [
+                    {
+                        type: "f",
+                        value: acc_obj[ballID].x 
+                    },
+                    {
+                        type: "i",
+                        value: 1 
+                    },
+                ]
+            }, "127.0.0.1", 57120);
+
+
         }
 
         

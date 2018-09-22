@@ -14,9 +14,9 @@ ESP8266WiFiMulti WiFiMulti;
 SocketIoClient webSocket;
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
 
-//const char * SOCKET_ID = "ball_0";
+const char * SOCKET_ID = "ball_0";
 //const char * SOCKET_ID = "ball_1";
-const char * SOCKET_ID = "ball_2";
+//const char * SOCKET_ID = "ball_2";
 //const char * SOCKET_ID = "ball_3";
 
 //void event(const char * payload, size_t length) {
@@ -43,8 +43,8 @@ void setup() {
   //  USE_SERIAL.println("after forloop!");
 
   // Set wifi info
-  //    WiFiMulti.addAP("jjwc", "akdyspwm");
-  WiFiMulti.addAP("catch-bb", "akdyspwm");
+      WiFiMulti.addAP("jjwc", "akdyspwm");
+//  WiFiMulti.addAP("catch-bb", "akdyspwm");
   //  WiFiMulti.addAP("pa-do", "jeokpa-do");
 
   while (WiFiMulti.run() != WL_CONNECTED) {
@@ -56,8 +56,8 @@ void setup() {
 
 
   // Set socket.io server address and port
-  //    webSocket.begin("192.168.0.37", 3000);
-  webSocket.begin("192.168.1.12", 3000);
+      webSocket.begin("192.168.0.37", 3000);
+//  webSocket.begin("192.168.1.12", 3000);
   //  webSocket.begin("192.168.0.5", 3000);
 
 //  USE_SERIAL.println("websocket began!");
@@ -86,7 +86,8 @@ void loop() {
 
 
   // get accelerometer
-  imu::Vector<3> acc = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
+//  imu::Vector<3> acc = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
+  imu::Vector<3> acc = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
 
   webSocket.loop();
 
@@ -118,7 +119,7 @@ void loop() {
   webSocket.emit(SOCKET_ID, payload_o);
   //  webSocket.emit(SOCKET_ID, payload_a);
 
-  delay(10);
+  delay(1);
 
 
 
