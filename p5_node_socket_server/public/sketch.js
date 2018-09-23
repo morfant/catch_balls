@@ -19,6 +19,11 @@ var type = 0;
 var n = 0;
 var c = 4;
 
+// images
+var img = [];  // Declare variable 'img'.
+var drawImage = true;
+var img_random_idx = 0;
+
 
 function setup() {
 
@@ -29,10 +34,17 @@ function setup() {
   pos_x = 0;
   pos_y = 0;
 
+  for (var i = 0; i < 29; i++) {
+      img[i] = loadImage("assets/" + i + ".jpg");
+  }
+//   img = loadImage("assets/moonwalk.jpg");  // Load the image
+
+
 }
 
 function draw() {
-    
+
+
     // background(200, 155 + random(100), random(50) + 205, 4);
     // background(back_col);
 
@@ -48,6 +60,11 @@ function draw() {
     background(0);
     stroke(255);
     line(0, height/2, width, height/2);
+
+    // display image
+    if (drawImage) {
+        image(img[img_random_idx], 0, 0);
+    }
 
     noStroke();
 
@@ -261,3 +278,16 @@ socket.on('bloom', function(_data) {
 
 //   socket.emit('mouse', data);
 // }
+
+
+function mousePressed() {
+
+}
+
+function mouseClicked() {
+
+    img_random_idx = Math.floor((Math.random() * 29));
+    console.log(img_random_idx);
+    // drawImage = !drawImage;
+
+}

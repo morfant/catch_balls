@@ -483,7 +483,7 @@ function disConnection(socket) {
 
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
-  }
+}
 
 
 function takeSamples(ballID, obj, numSample) {
