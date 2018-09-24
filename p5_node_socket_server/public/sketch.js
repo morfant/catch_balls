@@ -4,6 +4,7 @@ var socket = io.connect();
 var bufferBallsOri = [[[],[],[]], [[],[],[]], [[],[],[]], [[],[],[]]]; // [ballID][axis: x, y, z]
 var bufferBallsAcc = [[[],[],[]], [[],[],[]], [[],[],[]], [[],[],[]]];
 var bufferBallsVel = [[[],[],[]], [[],[],[]], [[],[],[]], [[],[],[]]];
+var bufferBallsG = [[[],[],[]], [[],[],[]], [[],[],[]], [[],[],[]]];
 var bufLen = 512;
 var plotSize = 5;
 var scaleY = 3;
@@ -104,7 +105,17 @@ function draw() {
             // fill((155/(i+1)) + 40, 10, 100);
             // ellipse(j, height/2 - bufferBallsVel[i][2][j] * scaleY, plotSize/2, plotSize/2);
 
+            // Gravity
+            // fill("DarkBlue");
+            // ellipse(j, height/2 - bufferBallsG[i][0][j] * scaleY, plotSize/2, plotSize/2);
+            // fill("DarkGrey");
+            // ellipse(j, height/2 - bufferBallsG[i][1][j] * scaleY, plotSize/2, plotSize/2);
+            // fill("DarkGreen");
+            // ellipse(j, height/2 - bufferBallsG[i][2][j] * scaleY, plotSize/2, plotSize/2);
 
+            // var sumG = Math.abs(bufferBallsG[i][0][j]) + Math.abs(bufferBallsG[i][1][j]) + Math.abs(bufferBallsG[i][2][j]);
+            // fill("DeepPink");
+            // ellipse(j, height/2 - sumG * scaleY, plotSize/2, plotSize/2);
 
 
         }
@@ -233,6 +244,14 @@ socket.on('acc0', function(_data) {
     storeAcceleration(0, _data);
 });
 
+socket.on('g0', function(_data) {
+    // console.log("get ori of ball 1 from client()");
+    // console.log(_data);
+    storeGravity(0, _data);
+});
+
+
+
 socket.on('ori1', function(_data) {
     // console.log("get ori of ball 1 from client()");
     // console.log(_data);
@@ -302,6 +321,24 @@ function storeAcceleration(ball_id, _data) {
     if (bufferBallsAcc[ball_id][2].length > bufLen) bufferBallsAcc[ball_id][2].shift();
 
 }
+
+function storeGravity(ball_id, _data) {
+
+    // console.log(_data.x);
+    // console.log(_data.y);
+    // console.log(_data.z);
+    // console.log("sum");
+    // console.log(parseFloat(_data.x) + parseFloat(_data.y) + parseFloat(_data.z));
+
+    bufferBallsG[ball_id][0].push(_data.x);
+    bufferBallsG[ball_id][1].push(_data.y);
+    bufferBallsG[ball_id][2].push(_data.z);
+    if (bufferBallsG[ball_id][0].length > bufLen) bufferBallsG[ball_id][0].shift();
+    if (bufferBallsG[ball_id][1].length > bufLen) bufferBallsG[ball_id][1].shift();
+    if (bufferBallsG[ball_id][2].length > bufLen) bufferBallsG[ball_id][2].shift();
+
+}
+
 
 function storeVelocity(ball_id, _data) {
 

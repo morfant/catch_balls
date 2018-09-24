@@ -14,6 +14,10 @@ var udpPort = new osc.UDPPort({
     metadata: true
 });
 
+
+var STATUS_NOT_STOPPED = 1;
+var STATUS_STOPPED = 0;
+
 // osc
 udpPort.open();
 
@@ -40,6 +44,7 @@ udpPort.open();
 var acc_obj = [{}, {}, {}, {}];
 var vel_obj = [{}, {}, {}, {}];
 var ori_obj = [{}, {}, {}, {}];
+var g_obj = [{}, {}, {}, {}];
 var prev_ori_obj = [{}, {}, {}, {}];
 
 
@@ -164,17 +169,21 @@ io.on('connection',  function(socket) {
         // split by '|'
         var o = data.split('|')[0]; // orientation
         var a = data.split('|')[1]; // accelerometer
+        var g = data.split('|')[2]; // accelerometer
         // console.log("ori: " + o);
         // console.log("acc: " + a);
 
         ori_obj[ballID] = makeOriObj(o, 3); // it should change to be more simple process.
-        acc_obj[ballID] = makeAccObj(a, 6); // (obj, threshold to zero)
+        acc_obj[ballID] = makeAccObj(a, 2); // (obj, threshold to zero)
+        // g_obj[ballID] = makeGObj(g, 1); // (obj, threshold to zero)
 
         // console.log(acc_obj[ballID]);
 
         // send for drawing graph
         io.emit('acc'+ballID, acc_obj[ballID]);
         io.emit('ori'+ballID, ori_obj[ballID]);
+        // io.emit('g'+ballID, g_obj[ballID]);
+
 
         // takeSamples(ballID, acc_obj, 20);
 
@@ -192,13 +201,14 @@ io.on('connection',  function(socket) {
         // io.emit('vel'+ballID, vel_obj[ballID]);
    
         isRotating[ballID] = checkSpin(ballID, 20, 20);
-        isStop[ballID] = checkStop(ballID, 1, 50);
+        isStop[ballID] = checkStop(ballID, 1, 10);
 
 
-        console.log(isRotating[ballID]);
-        console.log(isStop[ballID]);
+        // console.log(isRotating[ballID]);
+        // console.log(isStop[ballID]);
         // when ball is stop..
         if (isStop[ballID] && !isRotating[ballID]) {
+        // if (isStop[ballID]) {
             console.log("ball " + ballID + " is stopped!!!!")
 
             // udpPort.send({
@@ -210,6 +220,19 @@ io.on('connection',  function(socket) {
             //         },
             //     ]
             // }, "127.0.0.1", 57120);
+
+            udpPort.send({
+                address: "/isBallStopped",
+                args: [
+                    {
+                        type: "i", value: ballID
+                    },
+                    {
+                        type: "i", value: STATUS_STOPPED 
+                    }
+                ]
+            }, "127.0.0.1", 57120);
+
 
 
 
@@ -224,17 +247,23 @@ io.on('connection',  function(socket) {
 
         } else {
             console.log("ball " + ballID + " is NOT stopped!!");
+
             udpPort.send({
                 address: "/isBallStopped",
                 args: [
                     {
-                        type: "f",
-                        value: acc_obj[ballID].x 
+                        type: "i", value: ballID
                     },
                     {
-                        type: "i",
-                        value: 1 
+                        type: "i", value: STATUS_NOT_STOPPED 
                     },
+                        { type: "f", value: acc_obj[ballID].x },
+                        { type: "f", value: acc_obj[ballID].y },
+                        { type: "f", value: acc_obj[ballID].z },
+                        { type: "f", value: ori_obj[ballID].x },
+                        { type: "f", value: ori_obj[ballID].y },
+                        { type: "f", value: ori_obj[ballID].z },
+
                 ]
             }, "127.0.0.1", 57120);
 
@@ -618,6 +647,27 @@ function makeOriObj(data, thr) {
 
 
 function makeAccObj(data, thr) {
+    var splited = data.split('/');
+
+    var obj = {
+        x : splited[0], 
+        y : splited[1],
+        z : splited[2]
+    };
+
+    // discrimination : regard too small value as zero.
+    for (var key in obj) {
+        if ((obj[key] <= thr) && (obj[key] >= -thr)) {
+            obj[key] = 0;
+        }
+    }
+
+    return obj;
+
+}
+
+
+function makeGObj(data, thr) {
     var splited = data.split('/');
 
     var obj = {

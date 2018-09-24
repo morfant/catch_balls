@@ -88,6 +88,7 @@ void loop() {
   // get accelerometer
 //  imu::Vector<3> acc = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
   imu::Vector<3> acc = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
+  imu::Vector<3> g = bno.getVector(Adafruit_BNO055::VECTOR_GRAVITY);
 
   webSocket.loop();
 
@@ -95,7 +96,9 @@ void loop() {
   // a : accelerometer
 
   //  String p = "\"\\\"" + String(pos[0]) + "/" + String(pos[1]) + "/" + String(pos[2]) + "\\\"\"";
+////String o = "\"\\\"" + String(event.orientation.x) + "/" + String(event.orientation.y) + "/" + String(event.orientation.z) + "|" + String(acc.x()) + "/" + String(acc.y()) + "/" + String(acc.z()) + "|" + String(g.x()) + "/" + String(g.y()) + "/" + String(g.z()) + "\\\"\"";
   String o = "\"\\\"" + String(event.orientation.x) + "/" + String(event.orientation.y) + "/" + String(event.orientation.z) + "|" + String(acc.x()) + "/" + String(acc.y()) + "/" + String(acc.z()) + "\\\"\"";
+  
   //  String a = "\"\\\"" + String(acc.x()) + "/" + String(acc.y()) + "/" + String(acc.z()) + "\\\"\"";
 
 
