@@ -66,41 +66,43 @@ function draw() {
     line(0, height/2, width, height/2);
 
     // display image
-    if (drawImage) {
-        image(img[img_random_idx], 0, 0);
-    }
+    // if (drawImage) {
+    //     image(img[img_random_idx], 0, 0);
+    // }
 
     noStroke();
 
-    colorMode(HSB);
+    // colorMode(HSB);
     for (var i = 0; i < 4; i++) {
         for (var j = 0; j < bufferBallsOri[i][0].length; j++) {
 
             // Orientation
-            // fill((255/(i+1)), 100, 100);
-            // ellipse(j, height/2 - bufferBallsOri[i][0][j] * scaleY, plotSize/2, plotSize/2);
+            fill("Blue");
+            ellipse(j, height/2 - bufferBallsOri[i][0][j] * scaleY, plotSize/2, plotSize/2);
+            fill("Coral");
             // fill((255/(i+1)) + 30, 100, 100);
-            // ellipse(j, height/2 - bufferBallsOri[i][1][j] * scaleY, plotSize/2, plotSize/2);
+            ellipse(j, height/2 - bufferBallsOri[i][1][j] * scaleY, plotSize/2, plotSize/2);
+            fill("Crimson");
             // fill((255/(i+1)) + 60, 100, 100);
-            // ellipse(j, height/2 - bufferBallsOri[i][2][j] * scaleY, plotSize/2, plotSize/2);
+            ellipse(j, height/2 - bufferBallsOri[i][2][j] * scaleY, plotSize/2, plotSize/2);
 
 
             // Acceleration
-            fill((255/(i+1)), 100, 100);
-            ellipse(j, height/2 - bufferBallsAcc[i][0][j] * scaleY, plotSize/2, plotSize/2);
-            fill((255/(i+1)) + 20, 100, 100);
-            ellipse(j, height/2 - bufferBallsAcc[i][1][j] * scaleY, plotSize/2, plotSize/2);
-            fill((255/(i+1)) + 40, 100, 100);
-            ellipse(j, height/2 - bufferBallsAcc[i][2][j] * scaleY, plotSize/2, plotSize/2);
+            // fill((255/(i+1)), 100, 100);
+            // ellipse(j, height/2 - bufferBallsAcc[i][0][j] * scaleY, plotSize/2, plotSize/2);
+            // fill((255/(i+1)) + 20, 100, 100);
+            // ellipse(j, height/2 - bufferBallsAcc[i][1][j] * scaleY, plotSize/2, plotSize/2);
+            // fill((255/(i+1)) + 40, 100, 100);
+            // ellipse(j, height/2 - bufferBallsAcc[i][2][j] * scaleY, plotSize/2, plotSize/2);
 
 
             // Velocity ? : using integral
-            fill((155/(i+1)), 10, 100);
-            ellipse(j, height/2 - bufferBallsVel[i][0][j] * scaleY, plotSize/2, plotSize/2);
-            fill((155/(i+1)) + 20, 10, 100);
-            ellipse(j, height/2 - bufferBallsVel[i][1][j] * scaleY, plotSize/2, plotSize/2);
-            fill((155/(i+1)) + 40, 10, 100);
-            ellipse(j, height/2 - bufferBallsVel[i][2][j] * scaleY, plotSize/2, plotSize/2);
+            // fill((155/(i+1)), 10, 100);
+            // ellipse(j, height/2 - bufferBallsVel[i][0][j] * scaleY, plotSize/2, plotSize/2);
+            // fill((155/(i+1)) + 20, 10, 100);
+            // ellipse(j, height/2 - bufferBallsVel[i][1][j] * scaleY, plotSize/2, plotSize/2);
+            // fill((155/(i+1)) + 40, 10, 100);
+            // ellipse(j, height/2 - bufferBallsVel[i][2][j] * scaleY, plotSize/2, plotSize/2);
 
 
 
@@ -119,8 +121,9 @@ function draw() {
     rotate(r);
     // console.log(r);
 
-    doDraw = true;
-    background(0);
+    // doDraw = true;
+    doDraw = false;
+    // background(0);
 
     var max = noise(frameCount/20) * 600;
     var ka = 134 + noise(frameCount/50) * 1.7;

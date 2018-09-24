@@ -40,6 +40,13 @@ udpPort.open();
 var acc_obj = [{}, {}, {}, {}];
 var vel_obj = [{}, {}, {}, {}];
 var ori_obj = [{}, {}, {}, {}];
+var prev_ori_obj = [{}, {}, {}, {}];
+
+
+var angvel_x_buffer = [[0], [0], [0], [0]];
+var angvel_y_buffer = [[0], [0], [0], [0]];
+var angvel_z_buffer = [[0], [0], [0], [0]];
+
 
 var acc_x_buffer = [[0], [0], [0], [0]];
 var acc_y_buffer = [[0], [0], [0], [0]];
@@ -71,6 +78,8 @@ var count_y = [[0], [0], [0], [0]];
 var count_z = [[0], [0], [0], [0]];
 
 var isStop = [false, false, false, false];
+var isRotating = [false, false, false, false];
+var flyingCount = 0;
 
 
 // server static files : index.html, sketch.js...
@@ -182,11 +191,15 @@ io.on('connection',  function(socket) {
 
         // io.emit('vel'+ballID, vel_obj[ballID]);
    
-        isStop[ballID] = checkStop(ballID, 1);
+        isRotating[ballID] = checkSpin(ballID, 20, 20);
+        isStop[ballID] = checkStop(ballID, 1, 50);
 
+
+        console.log(isRotating[ballID]);
+        console.log(isStop[ballID]);
         // when ball is stop..
-        if (isStop[ballID]) {
-            // console.log("ball " + ballID + " is stopped!!!!")
+        if (isStop[ballID] && !isRotating[ballID]) {
+            console.log("ball " + ballID + " is stopped!!!!")
 
             // udpPort.send({
             //     address: "/isBallStopped",
@@ -210,7 +223,7 @@ io.on('connection',  function(socket) {
             // io.to(rid).emit('setBotany', {draw: 1, type: 20});
 
         } else {
-            // console.log("ball " + ballID + " is NOT stopped!!");
+            console.log("ball " + ballID + " is NOT stopped!!");
             udpPort.send({
                 address: "/isBallStopped",
                 args: [
@@ -495,28 +508,90 @@ function takeSamples(ballID, obj, numSample) {
     if (acc_z_buffer[ballID].length > numSample) acc_z_buffer[ballID].shift();
 }
 
-function checkStop(ballID, countLimit) {
+function checkSpin(ballID, bufferLen, thr) {
+
+    var diff_spin_x, diff_spin_y, diff_spin_z;
+    diff_spin_x = Math.abs(parseFloat(ori_obj[ballID].x) - parseFloat(prev_ori_obj[ballID].x));
+    diff_spin_y = Math.abs(parseFloat(ori_obj[ballID].y) - parseFloat(prev_ori_obj[ballID].y));
+    diff_spin_z = Math.abs(parseFloat(ori_obj[ballID].z) - parseFloat(prev_ori_obj[ballID].z));
+    // console.log(parseFloat(ori_obj[ballID].x));
+    // console.log(diff_spin_x);
+    // console.log(diff_spin_y);
+    // console.log(diff_spin_z);
+
+
+    // bufferBallsOri[ball_id][2].push(_data.z);
+    // if (bufferBallsOri[ball_id][0].length > bufLen) bufferBallsOri[ball_id][0].shift();
+
+    angvel_x_buffer[ballID].push(diff_spin_x);
+    angvel_y_buffer[ballID].push(diff_spin_y);
+    angvel_z_buffer[ballID].push(diff_spin_z);
+    if (angvel_x_buffer[ballID].length > bufferLen) angvel_x_buffer[ballID].shift();
+    if (angvel_y_buffer[ballID].length > bufferLen) angvel_y_buffer[ballID].shift();
+    if (angvel_z_buffer[ballID].length > bufferLen) angvel_z_buffer[ballID].shift();
+
+    // console.log(angvel_x_buffer[ballID])
+
+    var sum_angvel_x = angvel_x_buffer[ballID].reduce((a, b) => a + b, 0);
+    var sum_angvel_y = angvel_y_buffer[ballID].reduce((a, b) => a + b, 0);
+    var sum_angvel_z = angvel_z_buffer[ballID].reduce((a, b) => a + b, 0);
+    // console.log(sum_angvel_x);
+    // console.log(sum_angvel_y);
+    // console.log(sum_angvel_z);
+    var avg_angvel_x = sum_angvel_x/bufferLen;
+    var avg_angvel_y = sum_angvel_y/bufferLen;
+    var avg_angvel_z = sum_angvel_z/bufferLen;
+    // console.log(avg_angvel_x);
+    // console.log(avg_angvel_y);
+    // console.log(avg_angvel_z);
+
+    prev_ori_obj[ballID].x = ori_obj[ballID].x;
+    prev_ori_obj[ballID].y = ori_obj[ballID].y;
+    prev_ori_obj[ballID].z = ori_obj[ballID].z;
+
+
+    if (avg_angvel_x < thr && avg_angvel_y < thr && avg_angvel_z < thr) {
+        // console.log("NOT spinning!!");
+        return false;
+    } else {
+        // console.log("spinning!!");
+        return true;
+    }
+
+}
+
+function checkStop(ballID, stopCount, flyCount) {
 
     // x
     if (acc_obj[ballID].x == 0) { count_x[ballID]++; }
     else { count_x[ballID] = 0; vel_x[ballID] = 1;}
-    if (count_x[ballID] >= countLimit) { vel_x[ballID] = 0; }
+    if (count_x[ballID] >= stopCount) { vel_x[ballID] = 0; }
 
     // y
     if (acc_obj[ballID].y == 0) { count_y[ballID]++; }
     else { count_y[ballID] = 0; vel_y[ballID] = 1;}
-    if (count_y[ballID] >= countLimit) { vel_y[ballID] = 0; }
+    if (count_y[ballID] >= stopCount) { vel_y[ballID] = 0; }
 
     // z
     if (acc_obj[ballID].z == 0) { count_z[ballID]++; }
     else { count_z[ballID] = 0; vel_z[ballID] = 1;}
-    if (count_z[ballID] >= countLimit) { vel_z[ballID] = 0; }
+    if (count_z[ballID] >= stopCount) { vel_z[ballID] = 0; }
+
 
     // check is stop
     if (vel_x[ballID] == 0 && vel_y[ballID] == 0 && vel_z[ballID] == 0) {
-        return true;
+        // return true;
+        flyingCount = 0;
     } else {
+        flyingCount++;
+        // return false;
+    }
+
+
+    if (flyingCount > flyCount) {
         return false;
+    } else {
+        return true;
     }
 
 }
