@@ -118,21 +118,22 @@ app.get('/update/:data', function (req, res) {
 // socket.io callback
 io.on('connection',  function(socket) {
 
-    for (var i = 0; i < 4; i++) {
-        ballIsOn[i] = ballIsOn[i] + 1;
-        console.log(ballIsOn[i]);
-    }
+    // for (var i = 0; i < 4; i++) {
+    //     ballIsOn[i] = ballIsOn[i] + 1;
+    //     console.log(ballIsOn[i]);
+    // }
 
     var id = socket.id;
-
     console.log('new connection: ' + id);
 
     socketClientList.push(id);
     console.log(socketClientList);
 
     // emit to client that has specific socket id.
-    // io.to(id).emit('greeting', "hi hello : " + id + " !!");
+    // echo to client
+    io.to(id).emit('loggedIn', id);
 
+    
     // emit to random socket cilent
     var r = getRandomInt(socketClientList.length);
     // console.log(r);

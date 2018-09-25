@@ -27,6 +27,9 @@ var scaleY = 3;
 var bloom = 0;
 
 
+// logged in
+var logId = "";
+
 // botany
 var var_shape, var_color;
 var n = 0;
@@ -129,8 +132,21 @@ function draw() {
 
 
         case LOGGED_IN:
+
             background(0);
-            text("Logged In");
+            textAlign(CENTER);
+            
+            var ts = innerWidth/8;
+            textSize(ts/2);
+            colorMode(HSB);
+            fill(random(255), 100, 100);
+            text("Id: " + logId, innerWidth/2, innerHeight/2 - ts/2);
+
+            textSize(ts);
+            colorMode(RGB);
+            fill(255);
+            text("Logged In", innerWidth/2, innerHeight/2 + ts/2);
+
             break;
 
         case CATCH_BALL_1:
@@ -335,6 +351,12 @@ socket.on('acc3', function(_data) {
     storeAcceleration(3, _data);
 });
 
+
+// logged in
+socket.on('loggedIn', function(_data) {
+  console.log(_data);
+  logId = _data;
+});
 
 // etc
 socket.on('updateBackground', function(_data) {
