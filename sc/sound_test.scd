@@ -160,11 +160,46 @@ Ndef(\x2, {
 
 (// EnvGen
 Ndef(\x2, {
-	var trig = Impulse.kr(4);
+	var trig = Impulse.kr(2);
 	var env = EnvGen.kr(Env.perc(0.0, 0.4, 0.3), trig);
 	Pan2.ar(SinOsc.ar(TIRand.kr(4,10,trig) * 100, 0, env));
 }).fadeTime_(0.5).play;
 )
+
+
+(// EnvGen
+Ndef(\x2, {|freq = 200, freq2 = 100, amp = 0.02, t_freq = 4 |
+	var trig = Impulse.kr(10);
+	var sig = Impulse.ar(freq2);
+	// var sig = SinOsc.ar(freq2);
+	var env = EnvGen.kr(Env.perc(0.0, 0.6), trig);
+	Pan2.ar(Mix.fill(6, {Ringz.ar(sig, TRand.kr(freq, freq*1.5, trig), 0.01)}), 0, env * amp);
+	// Pan2.ar(Ringz.ar(sig, TRand.kr(freq, freq*1.5, trig), 0.01), 0, env);
+}).fadeTime_(0.5).play;
+)
+
+Ndef(\x2).set(\freq, 800, \freq2, 5, \amp, 0.09);
+
+
+(
+SynthDef(\tt, { |freq = 300, amp = 0.07, gate = 1 |
+	var trig = Impulse.kr(4);
+	var sig = Saw.ar(200);
+	var env = EnvGen.kr(Env.perc(0.0, 0.4, 1.0), trig);
+	Out.ar(Pan2.ar(Mix.fill(6, {Ringz.ar(sig, TIRand.kr(freq, freq*1.5, trig).poll(4), 0.1)}), 0, env), 0);
+}).add;
+)
+
+
+
+a = Synth(\tt);
+
+
+
+
+
+
+	sig = Mix.fill(6, {Ringz.ar(Impulse.ar(0), Rand(freq, freq*1.5), decay)});
 
 
 // 여러 UGen 들을 싱크하기 위해서는...

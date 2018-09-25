@@ -85,7 +85,10 @@ var count_z = [[0], [0], [0], [0]];
 var isStop = [false, false, false, false];
 var isRotating = [false, false, false, false];
 var flyingCount = 0;
+var isPrint_not_stopped = false;
+var isPrint_stopped = false;
 
+var ballIsOn = [0, 0, 0, 0];
 
 // server static files : index.html, sketch.js...
 app.use(express.static('public'));
@@ -114,6 +117,11 @@ app.get('/update/:data', function (req, res) {
 
 // socket.io callback
 io.on('connection',  function(socket) {
+
+    for (var i = 0; i < 4; i++) {
+        ballIsOn[i] = ballIsOn[i] + 1;
+        console.log(ballIsOn[i]);
+    }
 
     var id = socket.id;
 
@@ -147,6 +155,10 @@ io.on('connection',  function(socket) {
     // });
 
 
+    for (var i = 0; i < 4; i++) {
+        if (ballIsOn[i] > 200) console.log("ball " + i + " is off");
+    }
+
 
     socket.on('disconnect', function () {
         console.log('disconnected: ' + id);
@@ -161,6 +173,8 @@ io.on('connection',  function(socket) {
 
 
     socket.on('ball_0', function(data){
+
+        ballIsOn[ballID] = 0;
 
         var ballID = 0;
         // console.log("ball_0");
@@ -209,7 +223,11 @@ io.on('connection',  function(socket) {
         // when ball is stop..
         if (isStop[ballID] && !isRotating[ballID]) {
         // if (isStop[ballID]) {
-            console.log("ball " + ballID + " is stopped!!!!")
+            if (!isPrint_stopped){
+                console.log("ball " + ballID + " is stopped!!!!")
+                isPrint_stopped = true;
+                isPrint_not_stopped = false;
+            }
 
             // udpPort.send({
             //     address: "/isBallStopped",
@@ -246,7 +264,11 @@ io.on('connection',  function(socket) {
             // io.to(rid).emit('setBotany', {draw: 1, type: 20});
 
         } else {
-            console.log("ball " + ballID + " is NOT stopped!!");
+            if (!isPrint_not_stopped){
+                console.log("ball " + ballID + " is NOT stopped!!");
+                isPrint_not_stopped = true;
+                isPrint_stopped = false;
+            }
 
             udpPort.send({
                 address: "/isBallStopped",
@@ -513,15 +535,7 @@ io.on('connection',  function(socket) {
 });
 
 
-io.on('disconnect', disConnection);
-
-// function newConnection(socket) {
-//     console.log('new connection: ' + socket.id);
-// }
-
-function disConnection(socket) {
-    console.log('disconnected: ' + socket.id);
-}
+console.log("helo");
 
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
@@ -620,7 +634,13 @@ function checkStop(ballID, stopCount, flyCount) {
     if (flyingCount > flyCount) {
         return false;
     } else {
-        return true;
+        if (flyingCount < 1000){
+            return true;
+        } else {
+            console.log("over max time");
+            console.log(flyingCount);
+            return false;
+        }
     }
 
 }
