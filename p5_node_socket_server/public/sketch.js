@@ -34,6 +34,10 @@ var logId = "";
 var var_shape, var_color;
 var n = 0;
 var c = 4;
+var botany_max = 300;
+var botany_space = 5;
+var botany_theta = 137.5;
+var botany_color_base = 155;
 
 // images
 var imgs = [];  // Declare variable 'img'.
@@ -154,12 +158,13 @@ function draw() {
             // draw frame by frame or all at once?
             background(0);
             colorMode(HSB);
-            var k;
+            var k, s;
             
             // botany variation
             switch(var_shape) {
                 case 0:
                     k = 137.3;
+                    s = 2;
                     break;
                 case 1:
                     k = 137.5;
@@ -216,8 +221,47 @@ function draw() {
             // botany + rotation by ball orientation of which ball? as a team of specific ball?
             // botany color, shape variation
             background(0);
+            colorMode(HSB);
     
+            // text ball
+            push();
+            translate(innerWidth/2, innerHeight/2);
+
+            // rotate
+            // var r = frameCount*10 % 360;
+            // rotate(r);
+            // console.log(r);
+
+            // noise random values
+            if (variantBotany == 1) {
+                botany_max = noise(frameCount/20) * 600;
+                botany_theta = 134 + noise(frameCount/50) * 1.7;
+                botany_space = 3 + 1 + noise(frameCount/30) * 4;
+                botany_color_base = getRandomInt(255);
+                variantBotany = 0;
+            }
+
+            // fill(155, 100 * cos(a/3) * 255, 200);
+            for (var i = 0; i < botany_max; i+=1) {
+
+                // var a = i * 135.6;
+                var a = i * botany_theta;
+                var r = c * sqrt(i);
+
+                var x = botany_space * r * cos(a); 
+                var y = botany_space * r * sin(a);
+
+                fill(botany_color_base * sin(a), 100 * cos(a/3), 10 + 100 * ((botany_max - i)/botany_max));
+
+                ellipse(x, y, random(4, 8), random(4, 10));    
+                // vertex(x, y);
+        
+            }
+
+            pop();
             break;
+
+
         case CATCH_BALL_3: 
             // botany + trajectory images : when ball is flying
             background(0);
@@ -225,6 +269,55 @@ function draw() {
             // if (drawImage) {
             //     image(imgs[img_random_idx], 0, 0);
             // }
+
+            // botany color, shape variation
+            background(0);
+            colorMode(HSB);
+    
+            // text ball
+            push();
+            translate(innerWidth/2, innerHeight/2);
+
+            // rotate
+            // var r = frameCount*10 % 360;
+            // rotate(r);
+            // console.log(r);
+
+            // noise random values
+            if (variantBotany == 1) {
+                botany_max = noise(frameCount/20) * 600;
+                botany_theta = 134 + noise(frameCount/50) * 1.7;
+                botany_space = 3 + 1 + noise(frameCount/30) * 4;
+                botany_color_base = getRandomInt(255);
+                variantBotany = 0;
+            }
+
+            // fill(155, 100 * cos(a/3) * 255, 200);
+            for (var i = 0; i < botany_max; i+=1) {
+
+                // var a = i * 135.6;
+                var a = i * botany_theta;
+                var r = c * sqrt(i);
+
+                var x = botany_space * r * cos(a); 
+                var y = botany_space * r * sin(a);
+
+                // var curChar = sentance[0][i%sentance[0].length];
+                // console.log(curChar);
+
+                fill(botany_color_base * sin(a), 100 * cos(a/3), 10 + 100 * ((botany_max - i)/botany_max));
+                // textSize(ts);
+
+                // if (curChar === '폭' || curChar === '탄') {
+                //     fill(5, 100, 10 + 100 * ((botany_max - i)/botany_max));
+                //     textSize(ts*2);
+                // };
+
+                ellipse(x, y, random(4, 8), random(4, 10));    
+                // text(curChar, x, y);
+                // vertex(x, y);
+        
+            }
 
 
 
@@ -364,11 +457,18 @@ socket.on('updateBackground', function(_data) {
   back_col = _data;
 });
 
-socket.on('setBotany', function(_data) {
+socket.on('drawBotany', function(_data) {
   console.log(_data);
   drawBotany = _data.draw;
-  type = _data.type;
+  var_shape = _data._shape;
+  var_color = _data._color;
 });
+
+socket.on('drawBotany', function(_data) {
+//   console.log(_data);
+  variantBotany = _data.draw;
+});
+
 
 socket.on('bloom', function(_data) { 
     al = 255;
@@ -412,6 +512,10 @@ function storeVelocity(ball_id, _data) {
     if (bufferBallsVel[ball_id][0].length > bufLen) bufferBallsVel[ball_id][0].shift();
     if (bufferBallsVel[ball_id][1].length > bufLen) bufferBallsVel[ball_id][1].shift();
     if (bufferBallsVel[ball_id][2].length > bufLen) bufferBallsVel[ball_id][2].shift();
+}
+
+function getRandomInt(max) {
+    return Math.floor(Math.random() * Math.floor(max));
 }
 
 

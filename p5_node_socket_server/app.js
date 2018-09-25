@@ -1,12 +1,24 @@
+var stage = 0;
+
+var GRAPH = -1;
+var LOGGED_IN = 0;
+var CATCH_BALL_1 = 1;
+var CATCH_BALL_2 = 2;
+var CATCH_BALL_3 = 3;
+var CATCH_BALL_4 = 4;
+var CATCH_BALL_ENDDING = 5;
+var LOGGED_OUT = 6;
+
+
+// libs
 var express = require('express')
 var app = express()
 var socket = require('socket.io')
 var osc = require('osc')
-
 var server = app.listen(3000, "0.0.0.0");
-// var server = app.listen(3000, "127.0.0.1");
 var io = socket(server);
 var socketClientList = [];
+var socketClientListTemp = [];
 
 var udpPort = new osc.UDPPort({
     localAddress: "0.0.0.0",
@@ -84,9 +96,11 @@ var count_z = [[0], [0], [0], [0]];
 
 var isStop = [false, false, false, false];
 var isRotating = [false, false, false, false];
+var isFlying = [false, false, false, false];
 var flyingCount = 0;
 var isPrint_not_stopped = false;
 var isPrint_stopped = false;
+var socketIdxCnt = 0;
 
 var ballIsOn = [0, 0, 0, 0];
 
@@ -127,38 +141,12 @@ io.on('connection',  function(socket) {
     console.log('new connection: ' + id);
 
     socketClientList.push(id);
+    socketClientListTemp.push(id);
     console.log(socketClientList);
 
     // emit to client that has specific socket id.
     // echo to client
     io.to(id).emit('loggedIn', id);
-
-    
-    // emit to random socket cilent
-    var r = getRandomInt(socketClientList.length);
-    // console.log(r);
-    var rid = socketClientList[r];
-    // console.log(rid);
-    // io.to(rid).emit('setBotany', 1);
-    var types = [0, 1, 20];
-
-    var randEle = types[Math.floor(Math.random() * types.length)];
-
-    // send 'setBotany' to draw
-    // io.to(rid).emit('setBotany', {draw: 1, type: randEle});
-
-
-    // var buf = Buffer.from('hello sc');
-    // var data = '123';
-
-    // client.send(['/fromNode', data], 57120, 'localhost', (err) => {
-    //     client.close();
-    // });
-
-
-    for (var i = 0; i < 4; i++) {
-        if (ballIsOn[i] > 200) console.log("ball " + i + " is off");
-    }
 
 
     socket.on('disconnect', function () {
@@ -167,6 +155,7 @@ io.on('connection',  function(socket) {
         var index = socketClientList.indexOf(id);
         if (index > -1) {
             socketClientList.splice(index, 1);
+            socketClientListTemp.splice(index, 1);
         }
         console.log(socketClientList);
 
@@ -175,7 +164,7 @@ io.on('connection',  function(socket) {
 
     socket.on('ball_0', function(data){
 
-        ballIsOn[ballID] = 0;
+        // ballIsOn[ballID] = 0;
 
         var ballID = 0;
         // console.log("ball_0");
@@ -184,7 +173,7 @@ io.on('connection',  function(socket) {
         // split by '|'
         var o = data.split('|')[0]; // orientation
         var a = data.split('|')[1]; // accelerometer
-        var g = data.split('|')[2]; // accelerometer
+        // var g = data.split('|')[2]; // accelerometer
         // console.log("ori: " + o);
         // console.log("acc: " + a);
 
@@ -194,77 +183,58 @@ io.on('connection',  function(socket) {
 
         // console.log(acc_obj[ballID]);
 
-        // send for drawing graph
-        io.emit('acc'+ballID, acc_obj[ballID]);
-        io.emit('ori'+ballID, ori_obj[ballID]);
-        // io.emit('g'+ballID, g_obj[ballID]);
+        if (stage == GRAPH) {
+            // send for drawing graph
+            io.emit('acc'+ballID, acc_obj[ballID]);
+            io.emit('ori'+ballID, ori_obj[ballID]);
+            // io.emit('g'+ballID, g_obj[ballID]);
+        }
 
+        if (stage != LOGGED_IN && stage != LOGGED_OUT) {
+            isRotating[ballID] = checkSpin(ballID, 20, 20);
+            isStop[ballID] = checkStop(ballID, 1, 10);
+        }
 
-        // takeSamples(ballID, acc_obj, 20);
-
-
-        // acc_x_cur[ballID] = acc_obj[ballID].x;
-        // acc_y_cur[ballID] = acc_obj[ballID].y;
-        // acc_z_cur[ballID] = acc_obj[ballID].z;
-
-        // getVel(ballID);
-
-        // vel_obj[ballID].x = vel_x_cur[ballID];
-        // vel_obj[ballID].y = vel_y_cur[ballID];
-        // vel_obj[ballID].z = vel_z_cur[ballID];
-
-        // io.emit('vel'+ballID, vel_obj[ballID]);
-   
-        isRotating[ballID] = checkSpin(ballID, 20, 20);
-        isStop[ballID] = checkStop(ballID, 1, 10);
-
-
-        // console.log(isRotating[ballID]);
-        // console.log(isStop[ballID]);
         // when ball is stop..
         if (isStop[ballID] && !isRotating[ballID]) {
-        // if (isStop[ballID]) {
+            isFlying[ballID] = false;
+
             if (!isPrint_stopped){
                 console.log("ball " + ballID + " is stopped!!!!")
                 isPrint_stopped = true;
                 isPrint_not_stopped = false;
             }
 
-            // udpPort.send({
-            //     address: "/isBallStopped",
-            //     args: [
-            //         {
-            //             type: "i",
-            //             value: 0 
-            //         },
-            //     ]
-            // }, "127.0.0.1", 57120);
-
+            // osc to supercollider
+            // sound
             udpPort.send({
                 address: "/isBallStopped",
                 args: [
-                    {
-                        type: "i", value: ballID
-                    },
-                    {
-                        type: "i", value: STATUS_STOPPED 
-                    }
+                    { type: "i", value: ballID },
+                    { type: "i", value: STATUS_STOPPED }
                 ]
             }, "127.0.0.1", 57120);
 
 
+            if (stage == CATCH_BALL_1) {
 
+                // emit to every client sequencely
+                var id = socketClientList[socketIdxCnt];
+                var sh = getRandomInt(10);
+                var cl = getRandomInt(10);
 
-            // emit to random socket cilent
-            // var r = getRandomInt(socketClientList.length);
-            // console.log(r);
+                if (socketIdxCnt < socketClientList.length) {
+                    io.to(id).emit('drawBotany', {draw: 1, _shape: sh, _color: cl});
+                    socketIdxCnt++;
+                }
 
-            // var rid = socketClientList[r];
-            // console.log(rid);
-
-            // io.to(rid).emit('setBotany', {draw: 1, type: 20});
+            } else if (stage == CATCH_BALL_2) {
+                // broadcast
+                io.emit('variantBotany', {status: 1});
+            } 
 
         } else {
+            isFlying[ballID] = true;
             if (!isPrint_not_stopped){
                 console.log("ball " + ballID + " is NOT stopped!!");
                 isPrint_not_stopped = true;
@@ -274,18 +244,14 @@ io.on('connection',  function(socket) {
             udpPort.send({
                 address: "/isBallStopped",
                 args: [
-                    {
-                        type: "i", value: ballID
-                    },
-                    {
-                        type: "i", value: STATUS_NOT_STOPPED 
-                    },
-                        { type: "f", value: acc_obj[ballID].x },
-                        { type: "f", value: acc_obj[ballID].y },
-                        { type: "f", value: acc_obj[ballID].z },
-                        { type: "f", value: ori_obj[ballID].x },
-                        { type: "f", value: ori_obj[ballID].y },
-                        { type: "f", value: ori_obj[ballID].z },
+                    { type: "i", value: ballID },
+                    { type: "i", value: STATUS_NOT_STOPPED },
+                    { type: "f", value: acc_obj[ballID].x },
+                    { type: "f", value: acc_obj[ballID].y },
+                    { type: "f", value: acc_obj[ballID].z },
+                    { type: "f", value: ori_obj[ballID].x },
+                    { type: "f", value: ori_obj[ballID].y },
+                    { type: "f", value: ori_obj[ballID].z },
 
                 ]
             }, "127.0.0.1", 57120);
@@ -293,6 +259,11 @@ io.on('connection',  function(socket) {
 
         }
 
+        if (stage == CATCH_BALL_3) {
+            if (isMultipleBallFlying() == true) {
+                io.emit('multipleBallFlying', {status: 1});
+            }
+        }
         
         // var splited = data.split('/');
         // // console.log(splited);
@@ -535,9 +506,6 @@ io.on('connection',  function(socket) {
 
 });
 
-
-console.log("helo");
-
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
 }
@@ -749,7 +717,17 @@ function getVel(ballID) {
 
 }
 
+function isMultipleBallFlying() {
 
+    var cnt = 0;
+    for (var i = 0; i < BALL_NUM; i++) {
+        if (isFlying[i] == true) cnt++;
+    }
+
+    if (cnt >= 2) return true;
+    else return false;
+
+}
 
 
 
