@@ -12,6 +12,9 @@ var LOGGED_OUT = 6;
 // stage holder
 var stage = LOGGING_IN;
 
+// constant
+var ORI_X_MIN = 0;
+var ORI_X_MAX = 360;
 
 var NUM_IMAGES = 29;
 
@@ -39,12 +42,18 @@ var oneIsFirstTime = true;
 
 // botany
 var var_shape, var_color;
+var variantBotany = 0;
 var n = 0;
 var c = 4;
 var botany_max = 300;
 var botany_space = 5;
 var botany_theta = 137.5;
 var botany_color_base = 155;
+var botany_ellipse_x = 5;
+var botany_ellipse_y = 6;
+var botany_sat_base = 40;
+var botany_sat_div = 1;
+var botany_orientation = 0;
 
 // images
 var imgs = [];  // Declare variable 'img'.
@@ -279,15 +288,20 @@ function draw() {
 
             // rotate
             // var r = frameCount*10 % 360;
-            // rotate(r);
+            rotate(botany_orientation);
             // console.log(r);
 
             // noise random values
             if (variantBotany == 1) {
-                botany_max = noise(frameCount/20) * 600;
-                botany_theta = 134 + noise(frameCount/50) * 1.7;
-                botany_space = 3 + 1 + noise(frameCount/30) * 4;
+                console.log("in variation");
+                botany_max = 30 + random(600);
+                botany_theta = 137 + random(0.8);
+                botany_space = random(4);
                 botany_color_base = getRandomInt(255);
+                botany_sat_base = getRandomInt(80);
+                botany_sat_div = 1 + getRandomInt(4);
+                botany_ellipse_x = random(4, 8);
+                botany_ellipse_y = random(4, 10);
                 variantBotany = 0;
             }
 
@@ -301,10 +315,9 @@ function draw() {
                 var x = botany_space * r * cos(a); 
                 var y = botany_space * r * sin(a);
 
-                fill(botany_color_base * sin(a), 100 * cos(a/3), 10 + 100 * ((botany_max - i)/botany_max));
+                fill(botany_color_base, botany_sat_base + (100 - botany_sat_base) * cos(a/botany_sat_div), 10 + 100 * ((botany_max - i)/botany_max));
 
-                ellipse(x, y, random(4, 8), random(4, 10));    
-                // vertex(x, y);
+                ellipse(x, y, botany_ellipse_x, botany_ellipse_y);    
         
             }
 
@@ -601,9 +614,15 @@ socket.on('drawBotany', function(_data) {
 });
 
 socket.on('variantBotany', function(_data) {
-//   console.log(_data);
+    // console.log(_data);
     variantBotany = _data.value;
 });
+
+socket.on('setRotation', function(_data) {
+    console.log(_data);
+    botany_orientation = map(_data.value, ORI_X_MIN, ORI_X_MAX, 0, 360);
+});
+
 
 // ========== 3 ==========
 socket.on('changeImage', function(_data) {
@@ -709,7 +728,9 @@ function keyTyped() {
         stage = CATCH_BALL_ENDDING;
     } else if (key === '9') {
         stage = GRAPH;
-    } 
+    } else if (key === 'v') {
+        variantBotany = 1;
+    }
 
     // uncomment to prevent any default behavior
     return false;

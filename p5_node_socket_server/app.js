@@ -99,7 +99,7 @@ var isRotating = [false, false, false, false];
 var isFlying = [false, false, false, false];
 var isPrint_not_stopped = false;
 var isPrint_stopped = false;
-var hasBallFlown = false;
+var hasBallFlown = [false, false, false, false];
 
 // counter
 var flyingCount = 0;
@@ -214,6 +214,7 @@ io.on('connection',  function(socket) {
     // emit to client that has specific socket id.
     // echo to client
     io.to(id).emit('loggedIn', id);
+    io.to(id).emit('setStage', {value: stage}); // send current state
 
 
     socket.on('disconnect', function () {
@@ -292,29 +293,26 @@ io.on('connection',  function(socket) {
             if (stage == CATCH_BALL_1) {
                 // console.log("stage CATCH_BALL_1");
 
-                if (hasBallFlown) {
-                    console.log("stage CATCH_BALL_1 - hasBallFlown is true");
+                if (hasBallFlown[ballID]) {
                     // emit to all client sequencely
                     var id = socketClientList[socketIdxCnt];
-                    // var sh = getRandomInt(10);
-                    // var cl = getRandomInt(10);
 
                     if (socketIdxCnt < socketClientList.length) {
                         console.log(id);
-                        // io.to(id).emit('drawBotany', {value: 1, _shape: sh, _color: cl});
                         io.to(id).emit('setStage', {value: CATCH_BALL_1});
                         socketIdxCnt++;
                     } else {
                         socketIdxCnt = 0;
                     }
-
-                    hasBallFlown = false;
-
-
+                    hasBallFlown[ballID] = false;
                 }
+
             } else if (stage == CATCH_BALL_2) {
-                // broadcast
-                io.emit('variantBotany', {value: 1});
+                if (hasBallFlown[ballID]) {
+                    // broadcast
+                    io.emit('variantBotany', {value: 1});
+                    hasBallFlown[ballID] = false;
+                }
             } else if (stage == CATCH_BALL_3) {
                 // broadcast
                 // io.emit('changeImage', {value: 1});
@@ -385,7 +383,12 @@ io.on('connection',  function(socket) {
 
             // VISUAL
             if (stage == CATCH_BALL_1) {
-                hasBallFlown = true;
+
+                hasBallFlown[ballID] = true;
+
+            } else if (stage == CATCH_BALL_2) {
+                hasBallFlown[ballID] = true;
+                io.emit('setRotation', {value: ori_obj[ballID].x});
 
             } else if (stage == CATCH_BALL_3) {
 
