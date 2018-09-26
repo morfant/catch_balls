@@ -1,5 +1,8 @@
+
+// stage holder
 var stage = 0;
 
+// stage labels
 var GRAPH = -1;
 var LOGGED_IN = 0;
 var CATCH_BALL_1 = 1;
@@ -9,6 +12,9 @@ var CATCH_BALL_4 = 4;
 var CATCH_BALL_ENDDING = 5;
 var LOGGED_OUT = 6;
 
+
+var STATUS_NOT_STOPPED = 1;
+var STATUS_STOPPED = 0;
 var ENDING_CATCH_BALL_LIMIT = 20;
 var ENDING_BALL_ID = 5;
 var SOUND_OFF_ID = 6;
@@ -23,17 +29,12 @@ var io = socket(server);
 var socketClientList = [];
 var socketClientListTemp = [];
 
+// osc(udp)
 var udpPort = new osc.UDPPort({
     localAddress: "0.0.0.0",
     localPort: 50000,
     metadata: true
 });
-
-
-var STATUS_NOT_STOPPED = 1;
-var STATUS_STOPPED = 0;
-
-// osc
 udpPort.open();
 
 
@@ -53,20 +54,14 @@ udpPort.open();
 // }, "127.0.0.1", 57110);
 
 
-
 // 4 balls each has 3 axis
-
 var acc_obj = [{}, {}, {}, {}];
-var vel_obj = [{}, {}, {}, {}];
 var ori_obj = [{}, {}, {}, {}];
-var g_obj = [{}, {}, {}, {}];
 var prev_ori_obj = [{}, {}, {}, {}];
-
 
 var angvel_x_buffer = [[0], [0], [0], [0]];
 var angvel_y_buffer = [[0], [0], [0], [0]];
 var angvel_z_buffer = [[0], [0], [0], [0]];
-
 
 var acc_x_buffer = [[0], [0], [0], [0]];
 var acc_y_buffer = [[0], [0], [0], [0]];
@@ -92,27 +87,26 @@ var vel_x = [[0], [0], [0], [0]];
 var vel_y = [[0], [0], [0], [0]];
 var vel_z = [[0], [0], [0], [0]];
 
-
 var count_x = [[0], [0], [0], [0]];
 var count_y = [[0], [0], [0], [0]];
 var count_z = [[0], [0], [0], [0]];
 
+// boolean
 var isStop = [false, false, false, false];
 var isRotating = [false, false, false, false];
 var isFlying = [false, false, false, false];
-var flyingCount = 0;
 var isPrint_not_stopped = false;
 var isPrint_stopped = false;
+
+// counter
+var flyingCount = 0;
 var socketIdxCnt = 0;
-
 var endingCatchBallCount = 0;
-
-var ballIsOn = [0, 0, 0, 0];
 
 // server static files : index.html, sketch.js...
 app.use(express.static('public'));
 
-
+/*
 // handle HTTP get method 
 app.get('/posx/:x/posy/:y/posz/:z', function (req, res) {
     // console.log(req.params);
@@ -131,6 +125,7 @@ app.get('/update/:data', function (req, res) {
     io.emit('updateBackground', req.params['data']);
     res.send(req.params);
 }) 
+*/
 
 
 
@@ -566,10 +561,12 @@ io.on('connection',  function(socket) {
 
 });
 
+
+
+//========================= functions ========================= 
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
 }
-
 
 function takeSamples(ballID, obj, numSample) {
     acc_x_buffer[ballID].push(obj.x);
@@ -792,5 +789,5 @@ function isMultipleBallFlying() {
 
 
 
-console.log("server is running..");
+console.log("CATCH BALL - CATCH BOMB server is running..");
 
