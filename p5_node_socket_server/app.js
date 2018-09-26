@@ -9,6 +9,8 @@ var CATCH_BALL_4 = 4;
 var CATCH_BALL_ENDDING = 5;
 var LOGGED_OUT = 6;
 
+var ENDING_CATCH_BALL_LIMIT = 20;
+var ENDING_BALL_ID = 5;
 
 // libs
 var express = require('express')
@@ -101,6 +103,8 @@ var flyingCount = 0;
 var isPrint_not_stopped = false;
 var isPrint_stopped = false;
 var socketIdxCnt = 0;
+
+var endingCatchBallCount = 0;
 
 var ballIsOn = [0, 0, 0, 0];
 
@@ -206,34 +210,61 @@ io.on('connection',  function(socket) {
             }
 
             // osc to supercollider
-            // sound
-            udpPort.send({
+            // SOUND
+            UdpPort.send({
                 address: "/isBallStopped",
                 args: [
                     { type: "i", value: ballID },
-                    { type: "i", value: STATUS_STOPPED }
+                    { type: "i", value: STATUS_STOPPED },
+                    { type: "i", value: endingCatchBallCount} // set amp using count
                 ]
             }, "127.0.0.1", 57120);
 
 
+            // VISUAL
             if (stage == CATCH_BALL_1) {
 
-                // emit to every client sequencely
+                // emit to all client sequencely
                 var id = socketClientList[socketIdxCnt];
                 var sh = getRandomInt(10);
                 var cl = getRandomInt(10);
 
                 if (socketIdxCnt < socketClientList.length) {
-                    io.to(id).emit('drawBotany', {draw: 1, _shape: sh, _color: cl});
+                    io.to(id).emit('drawBotany', {value: 1, _shape: sh, _color: cl});
                     socketIdxCnt++;
                 }
 
             } else if (stage == CATCH_BALL_2) {
                 // broadcast
-                io.emit('variantBotany', {status: 1});
-            } 
+                io.emit('variantBotany', {value: 1});
+            } else if (stage == CATCH_BALL_3) {
+                // broadcast
+                // io.emit('changeImage', {value: 1});
+            } else if (stage == CATCH_BALL_4) {
+                // broadcast
+                io.emit('setBness', {value: 1}); // make transparent ELLIPSE botany.
+            } else if (stage == CATCH_BALL_ENDDING) {
+                // broadcast
+                // ori_obj.x can not be 1000. This is a sign about it.
+                io.emit('setBackground', {value: 1000}); // make background color as white
+
+                endingCatchBallCount++;
+
+                if (endingCatchBallCount >= ENDING_CATCH_BALL_LIMIT) {
+
+                    // SOUND
+                    udpPort.send({
+                        address: "/isBallStopped",
+                        args: [
+                            { type: "i", value: ENDING_BALL_ID } // specific number for represent over count limit
+                        ]
+                    }, "127.0.0.1", 57120);
+
+                }
+            }  
 
         } else {
+
             isFlying[ballID] = true;
             if (!isPrint_not_stopped){
                 console.log("ball " + ballID + " is NOT stopped!!");
@@ -241,6 +272,7 @@ io.on('connection',  function(socket) {
                 isPrint_stopped = false;
             }
 
+            // SOUND
             udpPort.send({
                 address: "/isBallStopped",
                 args: [
@@ -257,14 +289,25 @@ io.on('connection',  function(socket) {
             }, "127.0.0.1", 57120);
 
 
+            // VISUAL
+            if (stage == CATCH_BALL_3) {
+
+                if (isMultipleBallFlying() == true) {
+                    // io.emit('multipleBallFlying', {value: 1});
+                    io.emit('changeImage', {value: 1});
+                }
+                io.emit('imageAlpha', {value: ori_obj.x});
+
+            } else if (stage == CATCH_BALL_4) {
+                io.emit('setBness', {value: 0}); // make transparent TEXT Botany.
+            } else if (stage == CATCH_BALL_ENDDING) {
+                // broadcast
+                io.emit('setBackground', {value: ori_obj.x}); // make background color as random by orientation X. 
+            } 
+
         }
 
-        if (stage == CATCH_BALL_3) {
-            if (isMultipleBallFlying() == true) {
-                io.emit('multipleBallFlying', {status: 1});
-            }
-        }
-        
+       
         // var splited = data.split('/');
         // // console.log(splited);
 

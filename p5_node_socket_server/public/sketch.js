@@ -11,6 +11,7 @@ var CATCH_BALL_4 = 4;
 var CATCH_BALL_ENDDING = 5;
 var LOGGED_OUT = 6;
 
+var NUM_IMAGES = 29;
 
 // socket.io
 var socket = io.connect();
@@ -41,9 +42,10 @@ var botany_color_base = 155;
 
 // images
 var imgs = [];  // Declare variable 'img'.
-var drawImage = true;
+var changeImage = false;
 var img_random_idx = 0;
-
+var imgPaddingH, imgPaddingV;
+var image_alpha = 125;
 
 // text ball
 var sentance = [];
@@ -61,6 +63,10 @@ function setup() {
   for (var i = 0; i < 29; i++) {
       imgs[i] = loadImage("assets/" + i + ".jpg");
   }
+
+  imgPaddingH = innerWidth/8;
+  imgPaddingV = innerHeight/8;
+
 
   // sentances
   sentance[0] = "폭탄이 비행기에서 풀리면 비행기의 수평 속도와 같은 수평 속도로 포물선 궤도를 따라 간다. 폭탄은 비행기 바로 밑으로 떨어집니다 (파선). 폭탄이 땅 위의 어떤 높이에서 폭발하면 조각의 질량 중심은 원래의 포물선 궤도 (주황색 곡선)를 따른다. 운동량은 보존됩니다. 즉, 폭발 직전의 각 조각에 대한 매스의 곱과 벡터의 합은 폭발 직후의 운동량과 같습니다";
@@ -264,15 +270,10 @@ function draw() {
 
         case CATCH_BALL_3: 
             // botany + trajectory images : when ball is flying
-            background(0);
-            // display image
-            // if (drawImage) {
-            //     image(imgs[img_random_idx], 0, 0);
-            // }
-
             // botany color, shape variation
             background(0);
             colorMode(HSB);
+            imageMode(CENTER);
     
             // text ball
             push();
@@ -319,19 +320,97 @@ function draw() {
         
             }
 
+            if (changeImage) {
+                img_random_idx = Math.floor((Math.random() * NUM_IMAGES));
+                image_alpha = 0;
+                
+                // console.log(img_random_idx);
 
+                // var img_w = innerWidth - (2 * imgPaddingH);
+                // var img_h = innerHeight - (2 * imgPaddingV);
+
+                // image(imgs[img_random_idx], innerWidth/2, innerHeight/2, img.width, img.height);
+                changeImage = false;
+            }
+
+            tint(255, image_alpha); // Apply transparency without changing color
+            image(imgs[img_random_idx], innerWidth/2, innerHeight/2, innerWidth*6/8, innerHeight*6/8);
 
             break;
 
         case CATCH_BALL_4:
-            // text ball + trajectory images : when ball is flying
+            // when ball stop: text botany (frame by frame) / when ball flying: char changes as ellipse + CATCH_BALL_3 trajectory images
             background(0);
+            colorMode(HSB);
+            var k, s;
+            
+            // botany variation
+            // switch(var_shape) {
+            //     case 0:
+            //         k = 137.3;
+            //         s = 2;
+            //         break;
+            //     case 1:
+            //         k = 137.5;
+            //         break;
+            //     case 20:
+            //         k = 137.6;
+            //         break;
+            //     default:
+            //         k = 137.6;
+            // }
+
+            // switch(var_color) {
+            //     case 0:
+            //         fill(55, 100 * cos(a/3), bness);
+            //         break;
+            //     case 1:
+            //         fill(5, 100 * cos(a/3), bness);
+            //         break;
+            //     case 20:
+            //         fill(155, 100 * cos(a/3), bness);
+            //         break;
+            //     default:
+            //         fill(155, 100 * cos(a/3), bness);
+            // }
+
+            var a = n * k;
+            var r = c * sqrt(n);
+
+            var x = 2 * r * cos(a) + width/2;
+            var y = 2 * r * sin(a) + height/2;
+
+            noStroke();
+                
+            if (n % 1 == 0) {
+
+                // ellipse
+                // show if bness 100;
+                fill(155, 100 * cos(a/3), bness);
+                ellipse(x, y, random(4, 8), random(4, 10));    
+
+
+                // text
+                // show if bness 0;
+                fill(155, 100 * cos(a/3), 100 - bness);
+                var curChar = sentance[0][n%sentance[0].length];
+                if (curChar === '폭' || curChar === '탄') {
+                    fill(5, 100, 100 - bness);
+                    textSize(20);
+                };
+                text(curChar, x, y);
+
+            }
+            n+=1;
+
+
             break;
 
         case CATCH_BALL_ENDDING:
             // text ball rotation with 1 ball
-            background(0);
-
+            colorMode(HSB);
+            if (endingMakeWhite) background(0, 0, 100);
+            else background(endingBackCol, 100, 100);
 
             // text ball
             push();
@@ -447,26 +526,51 @@ socket.on('acc3', function(_data) {
 
 // logged in
 socket.on('loggedIn', function(_data) {
-  console.log(_data);
-  logId = _data;
+    console.log(_data);
+    logId = _data;
 });
 
-// etc
-socket.on('updateBackground', function(_data) {
-  console.log(_data);
-  back_col = _data;
-});
-
+// ========== 2 ==========
 socket.on('drawBotany', function(_data) {
-  console.log(_data);
-  drawBotany = _data.draw;
-  var_shape = _data._shape;
-  var_color = _data._color;
+    console.log(_data);
+    drawBotany = _data.value;
+    var_shape = _data._shape;
+    var_color = _data._color;
 });
 
-socket.on('drawBotany', function(_data) {
+socket.on('variantBotany', function(_data) {
 //   console.log(_data);
-  variantBotany = _data.draw;
+    variantBotany = _data.value;
+});
+
+// ========== 3 ==========
+socket.on('changeImage', function(_data) {
+    changeImage = _data.value;
+});
+
+socket.on('imageAlpha', function(_data) {
+//   console.log(_data);
+    image_alpha = map(_data.value, 0.0, 360.0, 0, 255);
+});
+
+// ========== 4 ==========
+socket.on('setBness', function(_data) {
+    // _data.value is coming 0 or 1. For using as HSB's Brightness value (0 ~ 100)
+    bness = _data.value * 100;
+});
+
+
+// ========== ENDING ==========
+socket.on('setBackground', function(_data) {
+//   console.log(_data);
+    var d = _data.value;
+    if (d != 1000) {
+        endingBackCol = map(d, ORI_X_MIN, ORI_X_MAX, 0, 255);
+        endingMakeWhite = false;
+    } else {
+        endingBackCol = d;
+        endingMakeWhite = true;
+    }
 });
 
 
