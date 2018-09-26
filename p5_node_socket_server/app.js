@@ -1,10 +1,8 @@
 
-// stage holder
-var stage = 0;
 
 // stage labels
 var GRAPH = -1;
-var LOGGED_IN = 0;
+var LOGGING_IN = 0;
 var CATCH_BALL_1 = 1;
 var CATCH_BALL_2 = 2;
 var CATCH_BALL_3 = 3;
@@ -12,6 +10,8 @@ var CATCH_BALL_4 = 4;
 var CATCH_BALL_ENDDING = 5;
 var LOGGED_OUT = 6;
 
+// stage holder
+var stage = LOGGING_IN;
 
 var STATUS_NOT_STOPPED = 1;
 var STATUS_STOPPED = 0;
@@ -28,6 +28,8 @@ var server = app.listen(3000, "0.0.0.0");
 var io = socket(server);
 var socketClientList = [];
 var socketClientListTemp = [];
+
+
 
 // osc(udp)
 var udpPort = new osc.UDPPort({
@@ -97,11 +99,76 @@ var isRotating = [false, false, false, false];
 var isFlying = [false, false, false, false];
 var isPrint_not_stopped = false;
 var isPrint_stopped = false;
+var hasBallFlown = false;
 
 // counter
 var flyingCount = 0;
 var socketIdxCnt = 0;
 var endingCatchBallCount = 0;
+
+
+
+
+// Enable keystroke input
+var stdin = process.stdin;
+
+// without this, we would only get streams once enter is pressed
+stdin.setRawMode( true );
+
+// resume stdin in the parent process (node app won't quit all by itself
+// unless an error or process.exit() happens)
+stdin.resume();
+
+// i don't want binary, do you?
+stdin.setEncoding( 'utf8' );
+
+// on any data into stdin
+stdin.on( 'data', function( key ){
+    // ctrl-c ( end of text )
+    if ( key === '\u0003' ) {
+        console.log("server down...");
+        process.exit();
+    } else {
+        if (key === '0') {
+            console.log("Go to LOGGING_IN");
+            stage = LOGGING_IN;
+            io.emit('setStage', {value: stage});
+        } else if (key === '1') {
+            console.log("Go to CATCH_BALL_1");
+            stage = CATCH_BALL_1;
+            // io.emit('setStage', {value: stage});
+        } else if (key === '2') {
+            console.log("Go to CATCH_BALL_2");
+            stage = CATCH_BALL_2;
+            io.emit('setStage', {value: stage});
+        } else if (key === '3') {
+            console.log("Go to CATCH_BALL_3");
+            stage = CATCH_BALL_3;
+            io.emit('setStage', {value: stage});
+        } else if (key === '4') {
+            console.log("Go to CATCH_BALL_4");
+            stage = CATCH_BALL_4;
+            io.emit('setStage', {value: stage});
+        } else if (key === '5') {
+            console.log("Go to CATCH_BALL_ENDING");
+            stage = CATCH_BALL_ENDDING;
+            io.emit('setStage', {value: stage});
+        } else if (key === '6') {
+            console.log("Go to LOGGEED_OUT");
+            stage = LOGGED_OUT;
+            io.emit('setStage', {value: stage});
+        } else if (key === '9') {
+            console.log("Go to GRAPH");
+            stage = GRAPH;
+            io.emit('setStage', {value: stage});
+        }
+    }
+    // write the key to stdout all normal like
+    // process.stdout.write( key );
+});
+
+
+
 
 // server static files : index.html, sketch.js...
 app.use(express.static('public'));
@@ -190,7 +257,11 @@ io.on('connection',  function(socket) {
             // io.emit('g'+ballID, g_obj[ballID]);
         }
 
-        if (stage != LOGGED_IN && stage != LOGGED_OUT) {
+        if (stage == LOGGING_IN) {
+            socketIdxCnt = 0;
+        }
+
+        if (stage != LOGGED_OUT) {
             isRotating[ballID] = checkSpin(ballID, 20, 20);
             isStop[ballID] = checkStop(ballID, 1, 10);
         }
@@ -207,7 +278,7 @@ io.on('connection',  function(socket) {
 
             // osc to supercollider
             // SOUND
-            UdpPort.send({
+            udpPort.send({
                 address: "/isBallStopped",
                 args: [
                     { type: "i", value: ballID },
@@ -219,17 +290,28 @@ io.on('connection',  function(socket) {
 
             // VISUAL
             if (stage == CATCH_BALL_1) {
+                // console.log("stage CATCH_BALL_1");
 
-                // emit to all client sequencely
-                var id = socketClientList[socketIdxCnt];
-                var sh = getRandomInt(10);
-                var cl = getRandomInt(10);
+                if (hasBallFlown) {
+                    console.log("stage CATCH_BALL_1 - hasBallFlown is true");
+                    // emit to all client sequencely
+                    var id = socketClientList[socketIdxCnt];
+                    // var sh = getRandomInt(10);
+                    // var cl = getRandomInt(10);
 
-                if (socketIdxCnt < socketClientList.length) {
-                    io.to(id).emit('drawBotany', {value: 1, _shape: sh, _color: cl});
-                    socketIdxCnt++;
+                    if (socketIdxCnt < socketClientList.length) {
+                        console.log(id);
+                        // io.to(id).emit('drawBotany', {value: 1, _shape: sh, _color: cl});
+                        io.to(id).emit('setStage', {value: CATCH_BALL_1});
+                        socketIdxCnt++;
+                    } else {
+                        socketIdxCnt = 0;
+                    }
+
+                    hasBallFlown = false;
+
+
                 }
-
             } else if (stage == CATCH_BALL_2) {
                 // broadcast
                 io.emit('variantBotany', {value: 1});
@@ -302,7 +384,10 @@ io.on('connection',  function(socket) {
 
 
             // VISUAL
-            if (stage == CATCH_BALL_3) {
+            if (stage == CATCH_BALL_1) {
+                hasBallFlown = true;
+
+            } else if (stage == CATCH_BALL_3) {
 
                 if (isMultipleBallFlying() == true) {
                     // io.emit('multipleBallFlying', {value: 1});
@@ -787,7 +872,5 @@ function isMultipleBallFlying() {
 }
 
 
-
-
-console.log("CATCH BALL - CATCH BOMB server is running..");
+console.log("<CATCH BALL - CATCH BOMB> server is running..");
 

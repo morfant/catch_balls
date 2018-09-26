@@ -80,10 +80,28 @@ SynthDef("help-TCoin_ori", { arg out=0, prob=0.5, freq = 20, freq_am = 0.5, amp 
 	)
 }).add;
 
+SynthDef("sophi", { arg out=0, freq = 120, amp = 0.2, gate = 1;
+	var sig, env, verb;
+	env = EnvGen.kr(Env.perc(0.05, 1.45), gate, doneAction: 2);
+	sig = Mix.new( [
+			SinOsc.ar(1 * freq, mul: env),
+			SinOsc.ar(1.5 * freq, mul: env * 0.5),
+			SinOsc.ar(2 * freq, mul: env),
+     	    SinOsc.ar(1.75 * freq, mul: env * 0.7),
+		]) * amp;
+
+	verb = GVerb.ar(sig, 30, spread: 4);
+	sig = verb*0.5 + sig;
+	Out.ar(out, sig);
+}).add;
+
 )
 
 
-a = Synth("help-TCoin_ori", [\freq, 200]);
+~e.stop;~p = ~f1.(1.2, -1.2, \sophi, 0.1);~e = ~p.asEventStreamPlayer;~e.play;
+
+
+a = Synth("help-T", [\freq, 200]);
 
 a = Synth(\liedR, [\freq, 1000]);
 a.set(\freq, 500);
@@ -132,16 +150,19 @@ Pbind(
 
 };
 
-~f1 = {|lenMul = 1|
+~f1 = {|lenMul = 1, keyAdd = 0, inst = "default", ampMul = 1|
 // var lenMul = 0.7;
 
 Pbind(
-		\instrument, \sine,
+		\instrument, inst,
 		// \freq, Pseq(60 - 24 +[\, 8, 14, 2, 4, 14, 12, 4, 5, \, 7, \, 7, 7, \],inf).midicps,
-		\freq, Pseq(60 - 10 +[\, 8, 14, 2, 4, 14, 12, 4, 5, \, 7, \, 7, 7, \],1).midicps,
-		// \dur, Pseq([1/8, 1/8, 1/4, 1/4, 1/4, 1/4, 1/4, 1/2, 1/4, 1/8, 1/8, 1/8, 1/8, 1/8, 1/8] * 1.2, inf),
-		\dur, Pseq([1/8, 1/8, 1/4, 1/4, 1/4, 1/4, 1/4, 1/2, 1/4, 1/16, 1/8, 3/16, 1/8, 1/8, 1/8] * 0.6 * lenMul, 1),
-		\delta, Pseq([1/8, 1/8, 1/4, 1/4, 1/4, 1/4, 1/4, 1/2, 1/4, 1/16, 1/8, 3/16, 1/8, 1/8, 1/8] * lenMul, 1),
+		\freq, Pseq([
+			Pseq(60 + keyAdd + [0, -5, -5, 5, 4, 5, 0, 4, 2, 0, -1, 0 ], 1),
+			Pseq(60 + keyAdd + [0, -5, -5, 5, 4, 5, 0, 4, 2, 0, -1, -5 ], 1),
+		].midicps, inf),
+		\dur, Pseq([1/4, 1/4, 1/4, 1/4, 1/4, 1/4, 1/4, 1/4, 1/4, 1/4, 1/2, 1/4] * 0.6 * lenMul, inf),
+		\delta, Pseq([1/2, 1/2, 1/2, 1/2, 1/2, 1/2, 1/2, 1/2, 1/2, 1/2, 1, 1/2] * lenMul, inf),
+		\amp, Pseq([1, 0.6, 0.6, 0.8, 0.6, 0.6, 0.7, 0.8, 0.7, 0.7, 0.8, 0.6] * ampMul, inf),
 	);
 
 };
@@ -177,7 +198,8 @@ Pbind(
 
 )
 
-
+~p = ~f1.(1.2, 5, \sophi, 0.1);~e = ~p.asEventStreamPlayer;
+~e.play;
 
 //================================ OSCdef ================================
 (

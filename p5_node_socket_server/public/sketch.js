@@ -1,15 +1,17 @@
 //================================ Global ================================
 // staging
-var stage = 0;
-
 var GRAPH = -1;
-var LOGGED_IN = 0;
+var LOGGING_IN = 0;
 var CATCH_BALL_1 = 1;
 var CATCH_BALL_2 = 2;
 var CATCH_BALL_3 = 3;
 var CATCH_BALL_4 = 4;
 var CATCH_BALL_ENDDING = 5;
 var LOGGED_OUT = 6;
+
+// stage holder
+var stage = LOGGING_IN;
+
 
 var NUM_IMAGES = 29;
 
@@ -30,6 +32,10 @@ var bloom = 0;
 
 // logged in
 var logId = "";
+
+// catch_ball_1
+var oneIsFirstTime = true;
+
 
 // botany
 var var_shape, var_color;
@@ -72,7 +78,7 @@ function setup() {
   sentance[0] = "폭탄이 비행기에서 풀리면 비행기의 수평 속도와 같은 수평 속도로 포물선 궤도를 따라 간다. 폭탄은 비행기 바로 밑으로 떨어집니다 (파선). 폭탄이 땅 위의 어떤 높이에서 폭발하면 조각의 질량 중심은 원래의 포물선 궤도 (주황색 곡선)를 따른다. 운동량은 보존됩니다. 즉, 폭발 직전의 각 조각에 대한 매스의 곱과 벡터의 합은 폭발 직후의 운동량과 같습니다";
 
   // set stage - bind to key pressed to control manually
-  stage = LOGGED_IN;
+  stage = LOGGING_IN;
 
 }
 
@@ -141,7 +147,7 @@ function draw() {
             break;
 
 
-        case LOGGED_IN:
+        case LOGGING_IN:
 
             background(0);
             textAlign(CENTER);
@@ -157,68 +163,106 @@ function draw() {
             fill(255);
             text("Logged In", innerWidth/2, innerHeight/2 + ts/2);
 
+            //reset boolean
+            oneIsFirstTime = true;
+            n = 0;
             break;
 
         case CATCH_BALL_1:
             // draw botany all at once
             // draw frame by frame or all at once?
-            background(0);
+
+            if (oneIsFirstTime) {
+                // erase logged in text
+                background(0);
+                var_shape = getRandomInt(5);
+                // console.log("sh: " + var_shape);
+                var_color = getRandomInt(5);
+                // console.log("cl: " + var_color);
+                oneIsFirstTime = false;
+            }
+
             colorMode(HSB);
-            var k, s;
+            // sh = 0;
+            // cl = 0;
+
+            // text(sh, 100, 100);
+            // text(cl, 200, 100);
             
             // botany variation
+            var k, s, rmin, rmax;
             switch(var_shape) {
                 case 0:
                     k = 137.3;
-                    s = 2;
+                    s = 3;
+                    rmin = 6; rmax = 9;
                     break;
                 case 1:
                     k = 137.5;
+                    s = 2.5;
+                    rmin = 1; rmax = 3;
                     break;
-                case 20:
+                    break;
+                case 2:
                     k = 137.6;
+                    s = 1.3;
+                    rmin = 4; rmax = 5;
                     break;
+                    break;
+                case 3:
+                    k = 137.7;
+                    s = 3;
+                    rmin = 3; rmax = 8;
+                    break;
+                    break;
+                case 4:
+                    k = 137.8;
+                    s = 2.9;
+                    rmin = 2; rmax = 4;
+                    break;
+                    break;
+ 
                 default:
                     k = 137.6;
-            }
-
-            switch(var_color) {
-                case 0:
-                    fill(55, 100 * cos(a/3), 100);
+                    s = 2;
+                    rmin = 4; rmax = 8;
                     break;
-                case 1:
-                    fill(5, 100 * cos(a/3), 100);
                     break;
-                case 20:
-                    fill(155, 100 * cos(a/3), 100);
-                    break;
-                default:
-                    fill(155, 100 * cos(a/3), 100);
             }
 
 
             var a = n * k;
             var r = c * sqrt(n);
 
-            var x = 2 * r * cos(a) + width/2;
-            var y = 2 * r * sin(a) + height/2;
+            var x = s * r * cos(a) + width/2;
+            var y = s * r * sin(a) + height/2;
 
             noStroke();
                 
-            if (n % 3 == 0) {
+            switch(var_color) {
+                case 0:
+                    fill(55, 50 + 50 * cos(a/3), 100);
+                    break;
+                case 1:
+                    fill(5, 40 + 40 * cos(a/2), 100);
+                    break;
+                case 2:
+                    fill(155, 70 + 30 * cos(a/2), 100);
+                    break;
+                case 3:
+                    fill(random(255), 90 + 10 * cos(a/3), 100);
+                    break;
+                case 4:
+                    fill(40, 30 + 50 * cos(a/3), 100);
+                    break;
 
-                // ellipse
-                ellipse(x, y, random(4, 8), random(4, 10));    
-
-                // text
-                var curChar = sentance[0][n%sentance[0].length];
-                if (curChar === '폭' || curChar === '탄') {
-                    fill(5, 100, 100);
-                    textSize(20);
-                };
-                text(curChar, x, y);
-
+                default:
+                    fill(155, 100 * cos(a/3), 100);
+                    break;
             }
+
+            ellipse(x, y, random(rmin, rmax), random(rmin, rmax+2));    
+
             n+=1;
 
             break;
@@ -535,8 +579,14 @@ socket.on('acc3', function(_data) {
     storeAcceleration(3, _data);
 });
 
+// ========== STAGING ==========
+socket.on('setStage', function(_data) {
+    console.log("Go to stage " + _data.value);
+    stage = parseInt(_data.value);
+});
 
-// logged in
+
+// ========== LOGGEED_IN ==========
 socket.on('loggedIn', function(_data) {
     console.log(_data);
     logId = _data;
@@ -645,19 +695,19 @@ function mouseClicked() {
 
 function keyTyped() {
 
-    if (key === '1') {
-        stage = LOGGED_IN;
-    } else if (key === '2') {
+    if (key === '0') {
+        stage = LOGGING_IN;
+    } else if (key === '1') {
         stage = CATCH_BALL_1;
-    } else if (key === '3') {
+    } else if (key === '2') {
         stage = CATCH_BALL_2;
-    } else if (key === '4') {
+    } else if (key === '3') {
         stage = CATCH_BALL_3;
-    } else if (key === '5') {
+    } else if (key === '4') {
         stage = CATCH_BALL_4;
-    } else if (key === '6') {
+    } else if (key === '5') {
         stage = CATCH_BALL_ENDDING;
-    } else if (key === '0') {
+    } else if (key === '9') {
         stage = GRAPH;
     } 
 
