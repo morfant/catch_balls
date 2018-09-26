@@ -11,6 +11,7 @@ var LOGGED_OUT = 6;
 
 var ENDING_CATCH_BALL_LIMIT = 20;
 var ENDING_BALL_ID = 5;
+var SOUND_OFF_ID = 6;
 
 // libs
 var express = require('express')
@@ -250,17 +251,33 @@ io.on('connection',  function(socket) {
 
                 endingCatchBallCount++;
 
-                if (endingCatchBallCount >= ENDING_CATCH_BALL_LIMIT) {
+                if (endingCatchBallCount > ENDING_CATCH_BALL_LIMIT) {
 
                     // SOUND
                     udpPort.send({
                         address: "/isBallStopped",
                         args: [
-                            { type: "i", value: ENDING_BALL_ID } // specific number for represent over count limit
+                            { type: "i", value: ENDING_BALL_ID}, // specific number for represent over count limit
+                            { type: "i", value: STATUS_STOPPED} 
                         ]
                     }, "127.0.0.1", 57120);
 
+                } else if (endingCatchBallCount > (ENDING_CATCH_BALL_LIMIT + 1)) {
+                    // final falling
+
+                    // sound off
+                    udpPort.send({
+                        address: "/isBallStopped",
+                        args: [
+                            { type: "i", value: SOUND_OFF_ID}
+                        ]
+                    }, "127.0.0.1", 57120);
+
+                    // chage stage
+                    io.emit('loggedOut', {value: 1});
+
                 }
+
             }  
 
         } else {

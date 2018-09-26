@@ -1,5 +1,5 @@
 
-// SynthDefs
+//================================ SynthDefs ================================
 
 (
 SynthDef(\sine, {|freq = 440, dur = 1.0, trig = 1|
@@ -111,7 +111,8 @@ a.set(\amp, 0);
 
 a = Synth(\dirac, [freq: 800]);
 
-// Functions
+
+//================================ Functions ================================
 (
 
 ~f0 = {|lenMul = 1, keyAdd = 0|
@@ -177,7 +178,8 @@ Pbind(
 )
 
 
-// OSCdef
+
+//================================ OSCdef ================================
 (
 
 var count = 0, trig = 0;
@@ -186,6 +188,7 @@ var isOpen_1 = false;
 var isOpen_2 = false;
 var isOpen_3 = false;
 
+~soundOff = false;
 
 ~p0 = ~f0.(1, 0);
 ~p1 = ~f1.(1);
@@ -233,111 +236,113 @@ OSCdef(\ball, {
 
 	// acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
 
-	switch (ballId)
-	{0} {
+	if (~soundOff == false, {
+		switch (ballId)
+		{0} {
 
-		if ( (msg[2] == 1) && (isOpen_0 == false), {
-			acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
-			// "0 is open".postln;
-			~p0 = ~f0.(1, 16);
-			~e0 = ~p0.asEventStreamPlayer;
-			~e0.play;
-			isOpen_0 = true;
-		});
+			if ( (msg[2] == 1) && (isOpen_0 == false), {
+				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
+				// "0 is open".postln;
+				~p0 = ~f0.(1, 16);
+				~e0 = ~p0.asEventStreamPlayer;
+				~e0.play;
+				isOpen_0 = true;
+			});
 
-		if (msg[2] == 0, {
-			~e0.stop;~e0.reset;
-			~e0 = nil;
-			isOpen_0 = false;
-		});
+			if (msg[2] == 0, {
+				~e0.stop;~e0.reset;
+				~e0 = nil;
+				isOpen_0 = false;
+			});
 
-	}
-	{4} {
-		if ( (msg[2] == 1) && (isOpen_1 == false), {
-			"1 open".postln;
-			acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
-			~e1.set(\freq, acc_sum * 50, \amp, 0.7, \freq2, ori_x);
+		}
+		{4} {
+			if ( (msg[2] == 1) && (isOpen_1 == false), {
+				"1 open".postln;
+				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
+				~e1.set(\freq, acc_sum * 50, \amp, 0.7, \freq2, ori_x);
 
-			isOpen_1 = true;
-		});
+				isOpen_1 = true;
+			});
 
-		if (msg[2] == 0, {
-			~e1.set(\amp, 0);
-			isOpen_1 = false;
-		});
+			if (msg[2] == 0, {
+				~e1.set(\amp, 0);
+				isOpen_1 = false;
+			});
 
-	}
-	{3} {
-		// if ( (msg[2] == 1) && (isOpen_2 == false), {
-		if ( (msg[2] == 1), {
-			// "on".postln;
-			acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
-			ori_sum = abs(ori_x) + abs(ori_y) + abs(ori_z);
+		}
+		{3} {
+			// if ( (msg[2] == 1) && (isOpen_2 == false), {
+			if ( (msg[2] == 1), {
+				// "on".postln;
+				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
+				ori_sum = abs(ori_x) + abs(ori_y) + abs(ori_z);
 
-			Ndef(\pulsepulse).set(\freq, acc_sum * 10, \freq_reson, abs(ori_x*2), \freq_trig, 10, \amp, 0.05);
-			// Ndef(\pulsepulse).set(\freq, acc_sum/2, \freq_reson, ori_sum * 10, \freq_trig, 10, \amp, 0.05);
-			isOpen_2 = true;
-		});
+				Ndef(\pulsepulse).set(\freq, acc_sum * 10, \freq_reson, abs(ori_x*2), \freq_trig, 10, \amp, 0.05);
+				// Ndef(\pulsepulse).set(\freq, acc_sum/2, \freq_reson, ori_sum * 10, \freq_trig, 10, \amp, 0.05);
+				isOpen_2 = true;
+			});
 
-		if (msg[2] == 0, {
-			// "off".postln;
-/*			~testCount = ~testCount + 1;
-			~testCount.postln;*/
+			if (msg[2] == 0, {
+				// "off".postln;
+				/*			~testCount = ~testCount + 1;
+				~testCount.postln;*/
 
-			Ndef(\pulsepulse).set(\amp, 0);
-			isOpen_2 = false;
-		});
-
-
-
-
-	}
-	{2} {
-		if ( (msg[2] == 1), {
-			// bombing...
-			~e3 = Synth(\woong, [\freq, acc_sum.linlin(0, 100, 30, 240), \freq2, ori_x.linlin(0, 360, 40, 200), \freq3, ori_y.linlin(0, 100, 30, 90), \sn, 8, \cutoff, ori_z.linlin(0, 100, 180, 400)]);
-
-
-			acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
-
-			// melancholy
-			// ~e3 = Synth(\liedR, [\freq, acc_sum.linlin(0, 100, 30, 240)]);
-			// ~e3.set(\freq, acc_sum.linlin(0, 100, 55, 79).midicps, \efxfreq, 200, \amp, 0.7);
-			// ~e3.set(\freq, acc_sum.linlin(0, 100, 66, 70).midicps, \amp, 0.6);
-
-		});
-
-		if (msg[2] == 0, {
-			isOpen_3 = false;
-		});
+				Ndef(\pulsepulse).set(\amp, 0);
+				isOpen_2 = false;
+			});
 
 
 
-	};
 
-	// Ndef(\pulsepulse).set(\amp, 0);
-
-	// if (count % 10 == 0,
-	// 	{
-	//
-	//
-	// 		// x.next(()).play;
-	// 		~pe0.play;
-	//
-	//
-	//
-	//
-	// 		Ndef(\digit, {
-	// 			// Pan2.ar(EnvGen.kr(Env.perc(0.1, 0.2), msg[1]) * Ringz.ar(VarSaw.ar(420), 200, mul: 0.05));
-	// 			// Pan2.ar(EnvGen.kr(Env.perc(0.1, 0.2), trig) * Ringz.ar(Impulse.ar(100 + (msg[1].abs*10)), 400+msg[1], mul: 0.05));
-	// 			Pan2.ar(EnvGen.kr(Env.perc(0.1, 0.2), trig) * Ringz.ar(Saw.ar(600 + (msg[1].abs*10)), 500+(msg[1].abs * 10), mul: 0.01));
-	// 		}).fadeTime_(0.1).play;
-	//
-	// });
-	//
-	// trig = 0;
+		}
+		{2} {
+			if ( (msg[2] == 1), {
+				// bombing...
+				~e3 = Synth(\woong, [\freq, acc_sum.linlin(0, 100, 30, 240), \freq2, ori_x.linlin(0, 360, 40, 200), \freq3, ori_y.linlin(0, 100, 30, 90), \sn, 8, \cutoff, ori_z.linlin(0, 100, 180, 400)]);
 
 
+				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
+
+				// melancholy
+				// ~e3 = Synth(\liedR, [\freq, acc_sum.linlin(0, 100, 30, 240)]);
+				// ~e3.set(\freq, acc_sum.linlin(0, 100, 55, 79).midicps, \efxfreq, 200, \amp, 0.7);
+				// ~e3.set(\freq, acc_sum.linlin(0, 100, 66, 70).midicps, \amp, 0.6);
+
+			});
+
+			if (msg[2] == 0, {
+				isOpen_3 = false;
+			});
+
+
+
+		}
+
+		{5} { // Ending stage
+			// like beep "삐---"
+
+			if ( msg[2] == 1, { // NOT STOP
+
+			});
+
+			if (msg[2] == 0, { // STOP
+
+			});
+
+
+		}
+		{6} { // sound off
+			~soundOff = true;
+		}
+	});
+
+
+	if (~soundOff == true, {
+		~e0.stop;~e0 = nil;
+		Ndef.clear;
+		~e1.free;~e3.free;
+	});
 
 }, '/isBallStopped'); // def style
 

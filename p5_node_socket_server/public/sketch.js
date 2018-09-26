@@ -458,9 +458,21 @@ function draw() {
             break;
 
         case LOGGED_OUT:
-            background(0);
-            text("Logged Out");
-            // blinking text
+
+            colorMode(RGB);
+            background(255);
+            textAlign(CENTER);
+            
+            var ts = innerWidth/8;
+            textSize(ts);
+
+            if (frameCount % 10 == 0) loggedOutBlinking = !loggedOutBlinking;
+
+            if (loggedOutBlinking) fill(0, 0) 
+            else fill(0, 255);
+
+            text("Logged Out", innerWidth/2, innerHeight/2);
+
             break;
 
         default:
@@ -573,10 +585,8 @@ socket.on('setBackground', function(_data) {
     }
 });
 
-
-socket.on('bloom', function(_data) { 
-    al = 255;
-    console.log(_data);
+socket.on('loggedOut', function(_data) { 
+    stage = LOGGED_OUT;
 });
 
 
