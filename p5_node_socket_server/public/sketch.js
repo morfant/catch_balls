@@ -57,10 +57,11 @@ var botany_orientation = 0;
 
 // images
 var imgs = [];  // Declare variable 'img'.
-var changeImage = false;
+// var changeImage = 0;
 var img_random_idx = 0;
 var imgPaddingH, imgPaddingV;
 var image_alpha = 125;
+var drawImages = 0;
 
 // text ball
 var sentance = [];
@@ -192,11 +193,6 @@ function draw() {
             }
 
             colorMode(HSB);
-            // sh = 0;
-            // cl = 0;
-
-            // text(sh, 100, 100);
-            // text(cl, 200, 100);
             
             // botany variation
             var k, s, rmin, rmax;
@@ -282,7 +278,6 @@ function draw() {
             background(0);
             colorMode(HSB);
     
-            // text ball
             push();
             translate(innerWidth/2, innerHeight/2);
 
@@ -322,6 +317,7 @@ function draw() {
             }
 
             pop();
+
             break;
 
 
@@ -331,72 +327,165 @@ function draw() {
             background(0);
             colorMode(HSB);
             imageMode(CENTER);
-    
-            // text ball
+
             push();
             translate(innerWidth/2, innerHeight/2);
 
             // rotate
             // var r = frameCount*10 % 360;
-            // rotate(r);
+            rotate(botany_orientation);
             // console.log(r);
 
             // noise random values
             if (variantBotany == 1) {
-                botany_max = noise(frameCount/20) * 600;
-                botany_theta = 134 + noise(frameCount/50) * 1.7;
-                botany_space = 3 + 1 + noise(frameCount/30) * 4;
+                console.log("in variation");
+                botany_max = 30 + random(600);
+                botany_theta = 137 + random(0.8);
+                botany_space = random(4);
                 botany_color_base = getRandomInt(255);
+                botany_sat_base = getRandomInt(80);
+                botany_sat_div = 1 + getRandomInt(4);
+                botany_ellipse_x = random(4, 8);
+                botany_ellipse_y = random(4, 10);
                 variantBotany = 0;
             }
 
-            // fill(155, 100 * cos(a/3) * 255, 200);
-            for (var i = 0; i < botany_max; i+=1) {
+            if (drawImages == 0) {
+                for (var i = 0; i < botany_max; i+=1) {
 
-                // var a = i * 135.6;
-                var a = i * botany_theta;
-                var r = c * sqrt(i);
+                    // var a = i * 135.6;
+                    var a = i * botany_theta;
+                    var r = c * sqrt(i);
 
-                var x = botany_space * r * cos(a); 
-                var y = botany_space * r * sin(a);
+                    var x = botany_space * r * cos(a); 
+                    var y = botany_space * r * sin(a);
 
-                // var curChar = sentance[0][i%sentance[0].length];
-                // console.log(curChar);
+                    fill(botany_color_base, botany_sat_base + (100 - botany_sat_base) * cos(a/botany_sat_div), 10 + 100 * ((botany_max - i)/botany_max));
 
-                fill(botany_color_base * sin(a), 100 * cos(a/3), 10 + 100 * ((botany_max - i)/botany_max));
-                // textSize(ts);
+                    ellipse(x, y, botany_ellipse_x, botany_ellipse_y);    
+            
+                }
+            }
+            pop();
 
-                // if (curChar === '폭' || curChar === '탄') {
-                //     fill(5, 100, 10 + 100 * ((botany_max - i)/botany_max));
-                //     textSize(ts*2);
-                // };
-
-                ellipse(x, y, random(4, 8), random(4, 10));    
-                // text(curChar, x, y);
-                // vertex(x, y);
-        
+            // trajectory images
+            if (drawImages == 1) {
+                // tint is not working : why?
+                // tint(255, image_alpha); // Apply transparency without changing color
+                // tint(255, 10); // Apply transparency without changing color
+                image(imgs[img_random_idx], innerWidth/2, innerHeight/2, innerWidth*6/8, innerHeight*6/8);
             }
 
-            if (changeImage) {
-                img_random_idx = Math.floor((Math.random() * NUM_IMAGES));
-                image_alpha = 0;
-                
-                // console.log(img_random_idx);
-
-                // var img_w = innerWidth - (2 * imgPaddingH);
-                // var img_h = innerHeight - (2 * imgPaddingV);
-
-                // image(imgs[img_random_idx], innerWidth/2, innerHeight/2, img.width, img.height);
-                changeImage = false;
-            }
-
-            tint(255, image_alpha); // Apply transparency without changing color
-            image(imgs[img_random_idx], innerWidth/2, innerHeight/2, innerWidth*6/8, innerHeight*6/8);
 
             break;
 
         case CATCH_BALL_4:
-            // when ball stop: text botany (frame by frame) / when ball flying: char changes as ellipse + CATCH_BALL_3 trajectory images
+            // when ball stop: text botany (frame by frame) / when ball flying: char changes as ellipse
+
+            if (fourIsFirstTime) {
+                // erase logged in text
+                background(0);
+                var_shape = getRandomInt(5);
+                // console.log("sh: " + var_shape);
+                var_color = getRandomInt(5);
+                // console.log("cl: " + var_color);
+                fourIsFirstTime = false;
+            }
+
+            colorMode(HSB);
+            
+            // botany variation
+            var k, s, rmin, rmax;
+            switch(var_shape) {
+                case 0:
+                    k = 137.3;
+                    s = 3;
+                    rmin = 6; rmax = 9;
+                    break;
+                case 1:
+                    k = 137.5;
+                    s = 2.5;
+                    rmin = 1; rmax = 3;
+                    break;
+                    break;
+                case 2:
+                    k = 137.6;
+                    s = 1.3;
+                    rmin = 4; rmax = 5;
+                    break;
+                    break;
+                case 3:
+                    k = 137.7;
+                    s = 3;
+                    rmin = 3; rmax = 8;
+                    break;
+                    break;
+                case 4:
+                    k = 137.8;
+                    s = 2.9;
+                    rmin = 2; rmax = 4;
+                    break;
+                    break;
+ 
+                default:
+                    k = 137.6;
+                    s = 2;
+                    rmin = 4; rmax = 8;
+                    break;
+                    break;
+            }
+
+
+            var a = n * k;
+            var r = c * sqrt(n);
+
+            var x = s * r * cos(a) + width/2;
+            var y = s * r * sin(a) + height/2;
+
+            noStroke();
+                
+            switch(var_color) {
+                case 0:
+                    fill(55, 50 + 50 * cos(a/3), 100);
+                    break;
+                case 1:
+                    fill(5, 40 + 40 * cos(a/2), 100);
+                    break;
+                case 2:
+                    fill(155, 70 + 30 * cos(a/2), 100);
+                    break;
+                case 3:
+                    fill(random(255), 90 + 10 * cos(a/3), 100);
+                    break;
+                case 4:
+                    fill(40, 30 + 50 * cos(a/3), 100);
+                    break;
+
+                default:
+                    fill(155, 100 * cos(a/3), 100);
+                    break;
+            }
+
+
+            if (drawText == 1) {
+                // text
+                var curChar = sentance[0][n%sentance[0].length];
+                if (curChar === '폭' || curChar === '탄') {
+                    fill(5, 100, 100 - bness);
+                    textSize(20);
+                };
+                text(curChar, x, y);
+            } else {
+                // ellipse
+                ellipse(x, y, random(rmin, rmax), random(rmin, rmax+2));    
+            }
+
+            n+=1;
+
+
+
+
+
             background(0);
             colorMode(HSB);
             var k, s;
@@ -625,8 +714,12 @@ socket.on('setRotation', function(_data) {
 
 
 // ========== 3 ==========
-socket.on('changeImage', function(_data) {
-    changeImage = _data.value;
+socket.on('drawImages', function(_data) {
+    drawImages = _data.value;
+    image_alpha = map(_data._alpha, ORI_X_MIN, ORI_X_MAX, 0, 360);
+    img_random_idx = Math.floor(map(_data._alpha, ORI_X_MIN, ORI_X_MAX, 0, NUM_IMAGES));
+    console.log(img_random_idx);
+
 });
 
 socket.on('imageAlpha', function(_data) {

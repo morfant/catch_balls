@@ -289,7 +289,7 @@ io.on('connection',  function(socket) {
             }, "127.0.0.1", 57120);
 
 
-            // VISUAL
+            // VISUAL - on stop
             if (stage == CATCH_BALL_1) {
                 // console.log("stage CATCH_BALL_1");
 
@@ -314,8 +314,12 @@ io.on('connection',  function(socket) {
                     hasBallFlown[ballID] = false;
                 }
             } else if (stage == CATCH_BALL_3) {
-                // broadcast
-                // io.emit('changeImage', {value: 1});
+                if (hasBallFlown[ballID]) {
+                    // broadcast
+                    io.emit('variantBotany', {value: 1});
+                    io.emit('drawImages', {value: 0, _alpha: 0});
+                    hasBallFlown[ballID] = false;
+                }
             } else if (stage == CATCH_BALL_4) {
                 // broadcast
                 io.emit('setBness', {value: 1}); // make transparent ELLIPSE botany.
@@ -381,7 +385,7 @@ io.on('connection',  function(socket) {
             }, "127.0.0.1", 57120);
 
 
-            // VISUAL
+            // VISUAL - flying
             if (stage == CATCH_BALL_1) {
 
                 hasBallFlown[ballID] = true;
@@ -391,12 +395,11 @@ io.on('connection',  function(socket) {
                 io.emit('setRotation', {value: ori_obj[ballID].x});
 
             } else if (stage == CATCH_BALL_3) {
-
-                if (isMultipleBallFlying() == true) {
+                hasBallFlown[ballID] = true;
+                // if (isMultipleBallFlying() == true) {
                     // io.emit('multipleBallFlying', {value: 1});
-                    io.emit('changeImage', {value: 1});
-                }
-                io.emit('imageAlpha', {value: ori_obj.x});
+                    io.emit('drawImages', {value: 1, _alpha: ori_obj[ballID].x});
+                // }
 
             } else if (stage == CATCH_BALL_4) {
                 io.emit('setBness', {value: 0}); // make transparent TEXT Botany.
