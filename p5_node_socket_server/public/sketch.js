@@ -48,6 +48,7 @@ var uniqueVarTextIdx = 0;
 
 // catch_ball_1
 var oneIsFirstTime = true;
+var drawFirstBotany = 0;
 var fourIsFirstTime = true;
 
 // ending
@@ -61,7 +62,7 @@ var loggedOutIsFirstTime = true;
 
 // botany
 var var_shape, var_color;
-var variantBotany = 0;
+var variantBotany = 1;
 var n = 0;
 var c = 4;
 var botany_max = 300;
@@ -75,7 +76,7 @@ var botany_sat_div = 1;
 var botany_orientation = 0;
 var botany_count = 0;
 var botany_count_limit = 600;
-var botany_frameDiv = 20;
+var botany_frameDiv = 15;
 
 // images
 var imgs = [];  // Declare variable 'img'.
@@ -88,8 +89,8 @@ var drawText = 0;
 
 // text ball
 var sentance = [];
-var tsNormal = 10;
-var tsLarge = 20;
+var tsNormal = 20;
+var tsLarge = tsNormal*1.5;
 
 
 //================================ setup() ================================
@@ -121,10 +122,6 @@ function setup() {
     sentance[9]="미국은2004년6월부터파키스탄에무인항공기로폭격했다.CIA는미국특수부대의무인항공기가파키스탄의무인항공기에대한독점기밀유지를끝낸2016년5월까지미국의모든무인항공기에대한공격을담당했다.파키스탄정부를전복하려는아프간탈레반과파키스탄탈레반,TTP등국내테러분자들을포함해알카에다와그동맹국을겨냥한폭격이벌어졌습니다.여성과어린이를포함한수백명의시민들과테러집단의고위직도사망했다.그러나더많은사람들이죽임을당한상태는아직알려지지않았습니다.그들은무명으로죽고,단지데이터세트의소스자료의대부분을차지하는언론보도에서\"전투적인\"것으로기록됩니다.그러나그들이무장단체에속해있는지여부는분명하지않습니다.";
     sentance[10]="전체데이터국은해마다파키스탄,아프가니스탄,소말리아,예멘에서미국의폭격에대한이야기의타임라인을발표합니다.파키스탄에대한2018년일정은아래와같습니다.다른모든타임라인링크는여기에서찾을수있습니다.우리는또한각국의사상자수를나타내는스프레드시트를게시합니다.파키스탄전체시트를다운로드할수있습니다.";
     sentance[11]="목표를초과하면표식에대한정보를얻기위해센서폭탄을떨어뜨립니다.파워블록과미사일포탑을찾습니다.미사일폭발은정말로열심히펀치를하고폭탄궤적을왜곡하여목표를망치고우리는먼저그들을제거하기를원합니다.그리드정보를얻으면운동폭탄으로전환하고정밀폭격을시작합니다.위에서언급한것처럼먼저미사일포탑을목표로삼습니다.적기지에원자로또는배터리클러스터가하나만있는경우표적이되어야합니다.그러면노크를사용하는전력이포탑과함께눈금을사용할수없게됩니다.";
-
-    // booleans
-    oneIsFirstTime = true;
-    fourIsFirstTime = true;
 
     // set stage - bind to key pressed to control manually
     stage = LOGGING_IN;
@@ -197,6 +194,13 @@ function draw() {
 
 
         case LOGGING_IN:
+
+            // boolean reset
+            oneIsFirstTime = true;
+            fourIsFirstTime = true;
+            loggedOutIsFirstTime = true;
+            drawFirstBotany = 0;
+            botany_count = 0;
 
             background(0);
             textAlign(CENTER);
@@ -334,22 +338,23 @@ function draw() {
                 variantBotany = 0;
             }
 
-            // fill(155, 100 * cos(a/3) * 255, 200);
-            for (var i = 0; i < botany_max; i+=1) {
+            if (drawFirstBotany == 1) {
+                // fill(155, 100 * cos(a/3) * 255, 200);
+                for (var i = 0; i < botany_max; i+=1) {
 
-                // var a = i * 135.6;
-                var a = i * botany_theta;
-                var r = c * sqrt(i);
+                    // var a = i * 135.6;
+                    var a = i * botany_theta;
+                    var r = c * sqrt(i);
 
-                var x = botany_space * r * cos(a); 
-                var y = botany_space * r * sin(a);
+                    var x = botany_space * r * cos(a); 
+                    var y = botany_space * r * sin(a);
 
-                fill(botany_color_base, botany_sat_base + (100 - botany_sat_base) * cos(a/botany_sat_div), 10 + 100 * ((botany_max - i)/botany_max));
+                    fill(botany_color_base, botany_sat_base + (100 - botany_sat_base) * cos(a/botany_sat_div), 10 + 100 * ((botany_max - i)/botany_max));
 
-                ellipse(x, y, botany_ellipse_x, botany_ellipse_y);    
-        
+                    ellipse(x, y, botany_ellipse_x, botany_ellipse_y);    
+            
+                }
             }
-
             pop();
 
             break;
@@ -443,7 +448,7 @@ function draw() {
                     break;
                 case 2:
                     k = 137.6;
-                    s = 1.8;
+                    s = 4;
                     rmin = 4; rmax = 5;
                     break;
                 case 3:
@@ -471,7 +476,9 @@ function draw() {
             // Don't rotate : for more readable condition
             // rotate(botany_orientation);
 
-            botany_count = frameCount/botany_frameDiv;
+            if (frameCount % botany_frameDiv == 0) {
+                botany_count++;
+            }
 
             for (var i = 0; i < botany_count; i+=1) {
 
@@ -479,8 +486,8 @@ function draw() {
                 var a = i * k;
                 var r = c * sqrt(i);
 
-                var x = s * r * cos(a); 
-                var y = s * r * sin(a);
+                var x = s * 2 * r * cos(a); 
+                var y = s * 2 * r * sin(a);
 
 
                 // noStroke();
@@ -541,7 +548,7 @@ function draw() {
             // text ball rotation with 1 ball
             colorMode(HSB);
             if (endingMakeWhite) {
-                background(0, 0, 0);
+                background(0, 0, 100);
                 endingBackCol = 200;
             } else {
                 background(endingBackCol, endingBackSat, 100);
@@ -652,7 +659,9 @@ function draw() {
             push();
             translate(innerWidth/2, innerHeight/2);
             
-            botany_count = frameCount/(botany_frameDiv/2);
+            if (frameCount % botany_frameDiv == 0) {
+                botany_count++;
+            }
             // if (botany_count > botany_count_limit) botany_count = botany_count_limit;
 
             for (var i = 0; i < botany_count; i+=1) {
@@ -755,7 +764,7 @@ socket.on('acc3', function(_data) {
 
 // ========== STAGING ==========
 socket.on('setStage', function(_data) {
-    console.log("Go to stage " + _data.value);
+    // console.log("Go to stage " + _data.value);
     stage = parseInt(_data.value);
 });
 
@@ -770,6 +779,13 @@ socket.on('loggedIn', function(_data) {
     console.log("textidx: " + uniqueVarTextIdx);
 
 });
+
+// ========== 1 ==========
+socket.on('drawFirstBotany', function(_data) {
+    // console.log(_data);
+    drawFirstBotany = _data.value;
+});
+
 
 // ========== 2 ==========
 socket.on('drawBotany', function(_data) {

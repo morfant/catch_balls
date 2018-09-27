@@ -100,6 +100,7 @@ var isFlying = [false, false, false, false];
 var isPrint_not_stopped = false;
 var isPrint_stopped = false;
 var hasBallFlown = [false, false, false, false];
+var CATCH_BALL_2_started = false;
 
 // counter
 var flyingCount = 0;
@@ -132,6 +133,8 @@ stdin.on( 'data', function( key ){
         if (key === '0') {
             console.log("Go to LOGGING_IN");
             stage = LOGGING_IN;
+            CATCH_BALL_2_started = false;
+            endingCatchBallCount = 0;
             io.emit('setStage', {value: stage});
         } else if (key === '1') {
             console.log("Go to CATCH_BALL_1");
@@ -161,7 +164,10 @@ stdin.on( 'data', function( key ){
             console.log("Go to GRAPH");
             stage = GRAPH;
             io.emit('setStage', {value: stage});
+        } else if (key === 'z') {
+            console.log("current stage: " + stage);
         }
+
     }
     // write the key to stdout all normal like
     // process.stdout.write( key );
@@ -296,14 +302,17 @@ io.on('connection',  function(socket) {
                 if (hasBallFlown[ballID]) {
                     // emit to all client sequencely
                     var id = socketClientList[socketIdxCnt];
+                    var len = socketClientList.length;
 
-                    if (socketIdxCnt < socketClientList.length) {
+                    if (socketIdxCnt < len) {
                         console.log(id);
                         io.to(id).emit('setStage', {value: CATCH_BALL_1});
                         socketIdxCnt++;
                     } else {
                         socketIdxCnt = 0;
                     }
+
+                    console.log(socketIdxCnt + "/" + len);
                     hasBallFlown[ballID] = false;
                 }
 
@@ -337,9 +346,7 @@ io.on('connection',  function(socket) {
                 ENDING_CATCH_BALL_LIMIT = 5;
                 
                 if (endingCatchBallCount > (ENDING_CATCH_BALL_LIMIT + 1)) {
-                    // console.log("over limit count MORE!!!")
                     // final falling
-
                     // sound off
                     udpPort.send({
                         address: "/isBallStopped",
@@ -349,10 +356,10 @@ io.on('connection',  function(socket) {
                     }, "127.0.0.1", 57120);
 
                     // chage stage
+                    stage = LOGGED_OUT;
                     io.emit('setStage', {value: LOGGED_OUT});
 
                 } else if (endingCatchBallCount > ENDING_CATCH_BALL_LIMIT) {
-                // if (endingCatchBallCount > ENDING_CATCH_BALL_LIMIT) {
 
                     // console.log("over limit count")
                     // SOUND
@@ -398,8 +405,14 @@ io.on('connection',  function(socket) {
             if (stage == CATCH_BALL_1) {
 
                 hasBallFlown[ballID] = true;
-
             } else if (stage == CATCH_BALL_2) {
+
+                if (!CATCH_BALL_2_started){
+                    console.log("ssssssssssssssssssssss")
+                    io.emit('drawFirstBotany', {value: 1});
+                    CATCH_BALL_2_started = true;
+                } 
+
                 hasBallFlown[ballID] = true;
                 io.emit('setRotation', {value: ori_obj[ballID].x});
 
