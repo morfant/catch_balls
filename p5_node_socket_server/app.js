@@ -328,20 +328,16 @@ io.on('connection',  function(socket) {
                 // ori_obj.x can not be 1000. This is a sign about it.
                 io.emit('setBackground', {value: 1000}); // make background color as white
 
-                endingCatchBallCount++;
+                if (hasBallFlown[ballID]) {
+                    endingCatchBallCount++;
+                    console.log("endingCatchBallCount: " + endingCatchBallCount);
+                    hasBallFlown[ballID] = false;
+                }
 
-                if (endingCatchBallCount > ENDING_CATCH_BALL_LIMIT) {
-
-                    // SOUND
-                    udpPort.send({
-                        address: "/isBallStopped",
-                        args: [
-                            { type: "i", value: ENDING_BALL_ID}, // specific number for represent over count limit
-                            { type: "i", value: STATUS_STOPPED} 
-                        ]
-                    }, "127.0.0.1", 57120);
-
-                } else if (endingCatchBallCount > (ENDING_CATCH_BALL_LIMIT + 1)) {
+                ENDING_CATCH_BALL_LIMIT = 5;
+                
+                if (endingCatchBallCount > (ENDING_CATCH_BALL_LIMIT + 1)) {
+                    // console.log("over limit count MORE!!!")
                     // final falling
 
                     // sound off
@@ -353,10 +349,23 @@ io.on('connection',  function(socket) {
                     }, "127.0.0.1", 57120);
 
                     // chage stage
-                    io.emit('loggedOut', {value: 1});
+                    io.emit('setStage', {value: LOGGED_OUT});
+
+                } else if (endingCatchBallCount > ENDING_CATCH_BALL_LIMIT) {
+                // if (endingCatchBallCount > ENDING_CATCH_BALL_LIMIT) {
+
+                    // console.log("over limit count")
+                    // SOUND
+                    udpPort.send({
+                        address: "/isBallStopped",
+                        args: [
+                            { type: "i", value: ENDING_BALL_ID}, // specific number for represent over count limit
+                            { type: "i", value: STATUS_STOPPED} 
+                        ]
+                    }, "127.0.0.1", 57120);
 
                 }
-
+                
             }  
 
         } else {
@@ -406,7 +415,9 @@ io.on('connection',  function(socket) {
                 // io.emit('setRotation', {value: ori_obj[ballID].x});
             } else if (stage == CATCH_BALL_ENDDING) {
                 // broadcast
-                io.emit('setBackground', {value: ori_obj.x}); // make background color as random by orientation X. 
+                var sumAcc = Math.abs(acc_obj[ballID].x) + Math.abs(acc_obj[ballID].y) + Math.abs(acc_obj[ballID].z);
+                io.emit('setBackground', {value: sumAcc});
+                hasBallFlown[ballID] = true;
             } 
 
         }

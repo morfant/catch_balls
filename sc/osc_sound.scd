@@ -218,7 +218,7 @@ var isOpen_3 = false;
 ~p3 = ~f3.(1);
 
 // ~e1.free;~e2.free;~e3.free;
-~e0 = nil;~e1 = nil;~e2 = nil;~e3 = nil;
+~e0 = nil;~e1 = nil;~e2 = nil;~e3 = nil;~e6 = nil;
 // ~e0 = ~p0.asEventStreamPlayer;
 // ~e0.play;~e0.pause;
 
@@ -344,11 +344,12 @@ OSCdef(\ball, {
 		{5} { // Ending stage
 			// like beep "삐---"
 
-			if ( msg[2] == 1, { // NOT STOP
-
+			if ( msg[2] == 0, { // NOT STOP
+				~e6 = Synth("help-TCoin", [\freq, 5000, \rel, 0.1]); // 0
 			});
 
-			if (msg[2] == 0, { // STOP
+			if (msg[2] == 1, { // STOP
+				~e6.set(\amp, 0);
 
 			});
 
