@@ -317,12 +317,12 @@ io.on('connection',  function(socket) {
                 if (hasBallFlown[ballID]) {
                     // broadcast
                     io.emit('variantBotany', {value: 1});
-                    io.emit('drawImages', {value: 0, _alpha: 0});
+                    io.emit('drawImages', {value: 0, _alpha: 0}); // trajectory images
                     hasBallFlown[ballID] = false;
                 }
             } else if (stage == CATCH_BALL_4) {
                 // broadcast
-                io.emit('setBness', {value: 1}); // make transparent ELLIPSE botany.
+                io.emit('drawText', {value: 1});
             } else if (stage == CATCH_BALL_ENDDING) {
                 // broadcast
                 // ori_obj.x can not be 1000. This is a sign about it.
@@ -402,7 +402,8 @@ io.on('connection',  function(socket) {
                 // }
 
             } else if (stage == CATCH_BALL_4) {
-                io.emit('setBness', {value: 0}); // make transparent TEXT Botany.
+                io.emit('drawText', {value: 0});
+                // io.emit('setRotation', {value: ori_obj[ballID].x});
             } else if (stage == CATCH_BALL_ENDDING) {
                 // broadcast
                 io.emit('setBackground', {value: ori_obj.x}); // make background color as random by orientation X. 

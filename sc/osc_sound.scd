@@ -98,7 +98,7 @@ SynthDef("sophi", { arg out=0, freq = 120, amp = 0.2, gate = 1;
 )
 
 
-~e.stop;~p = ~f1.(1.2, -1.2, \sophi, 0.1);~e = ~p.asEventStreamPlayer;~e.play;
+~e.stop;~p = ~f1.(1.2, -1.5, \sophi, 0.1);~e = ~p.asEventStreamPlayer;~e.play;
 
 
 a = Synth("help-T", [\freq, 200]);
@@ -226,7 +226,7 @@ var isOpen_3 = false;
 // ~e3 = Synth(\liedR, [\amp, 0]);
 // ~e3 = Synth("help-TCoin_ori", [\amp, 0]);
 
-// Ndef(\pulsepulse).play;Ndef(\pulsepulse).set(\amp, 0);
+Ndef(\pulsepulse).play;Ndef(\pulsepulse).set(\amp, 0);
 
 
 
@@ -242,7 +242,7 @@ OSCdef(\ball, {
 
 	    var acc_sum = 0;
 		var ori_sum = 0;
-	msg.postln;
+	// msg.postln;
 	// addr.postln;
 	// msg.size.postln;
 
@@ -260,11 +260,11 @@ OSCdef(\ball, {
 
 	if (~soundOff == false, {
 		switch (ballId)
-		{0} {
+		{9} {
 
 			if ( (msg[2] == 1) && (isOpen_0 == false), {
 				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
-				// "0 is open".postln;
+				"0 is open".postln;
 				~p0 = ~f0.(1, 16);
 				~e0 = ~p0.asEventStreamPlayer;
 				~e0.play;
@@ -293,10 +293,10 @@ OSCdef(\ball, {
 			});
 
 		}
-		{3} {
+		{8} {
 			// if ( (msg[2] == 1) && (isOpen_2 == false), {
 			if ( (msg[2] == 1), {
-				// "on".postln;
+				"on".postln;
 				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
 				ori_sum = abs(ori_x) + abs(ori_y) + abs(ori_z);
 
@@ -318,7 +318,7 @@ OSCdef(\ball, {
 
 
 		}
-		{2} {
+		{0} {
 			if ( (msg[2] == 1), {
 				// bombing...
 				~e3 = Synth(\woong, [\freq, acc_sum.linlin(0, 100, 30, 240), \freq2, ori_x.linlin(0, 360, 40, 200), \freq3, ori_y.linlin(0, 100, 30, 90), \sn, 8, \cutoff, ori_z.linlin(0, 100, 180, 400)]);
