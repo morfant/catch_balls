@@ -14,10 +14,10 @@ ESP8266WiFiMulti WiFiMulti;
 SocketIoClient webSocket;
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
 
-const char * SOCKET_ID = "ball_0";
+//const char * SOCKET_ID = "ball_0";
 //const char * SOCKET_ID = "ball_1";
 //const char * SOCKET_ID = "ball_2";
-//const char * SOCKET_ID = "ball_3";
+const char * SOCKET_ID = "ball_3";
 
 //void event(const char * payload, size_t length) {
 //  USE_SERIAL.printf("got message: %s\n", payload);
