@@ -103,7 +103,7 @@ var hasBallFlown = [false, false, false, false];
 var CATCH_BALL_2_started = false;
 
 // counter
-var flyingCount = 0;
+var flyingCount = [0, 0, 0, 0];
 var socketIdxCnt = 0;
 var endingCatchBallCount = 0;
 
@@ -1120,21 +1120,21 @@ function checkStop(ballID, stopCount, flyCount) {
     // check is stop
     if (vel_x[ballID] == 0 && vel_y[ballID] == 0 && vel_z[ballID] == 0) {
         // return true;
-        flyingCount = 0;
+        flyingCount[ballID] = 0;
     } else {
-        flyingCount++;
+        flyingCount[ballID]++;
         // return false;
     }
 
 
-    if (flyingCount > flyCount) {
+    if (flyingCount[ballID] > flyCount) {
         return false;
     } else {
-        if (flyingCount < 1000){
+        if (flyingCount[ballID] < 1000){
             return true;
         } else {
             console.log("over max time");
-            console.log(flyingCount);
+            console.log(flyingCount[ballID]);
             return false;
         }
     }
