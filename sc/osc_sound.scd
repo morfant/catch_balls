@@ -105,6 +105,17 @@ SynthDef("sophi", { arg out=0, freq = 120, amp = 0.2, gate = 1;
 	Out.ar(out, sig);
 }).add;
 
+SynthDef("help-TCoin", { arg out=0, prob=0.5, freq = 20, freq_am = 0.5, amp = 0.2, rel = 1, gate = 1;
+	var trig, env;
+	env = EnvGen.kr(Env.perc(0.01, rel), gate, doneAction: 2);
+	trig = Impulse.ar(freq, 0, SinOsc.kr(freq_am,0,1,1));
+	// trig = Impulse.ar(SinOsc.kr(0.01, 0, freq+100, freq+300), 0, SinOsc.kr(freq_am,0,1,1));
+	Out.ar(out,
+		// Mix.fill(3, {Ringz.ar(CoinGate.ar(prob, trig*0.5), #[1,1.5, 2, 4]*Rand(50, 90), 0.01)})*amp
+		SinOsc.ar(#[1, 1.5, 3]*freq)*amp*env
+	)
+}).add;
+
 )
 
 
@@ -129,7 +140,7 @@ a = Synth(\sine2);
 a = Synth(\dirac, [freq: 400]);
 a.set(\freq, 600, \amp, 0.05);
 
-a = Synth(\condan, [freq: 400, amp: 0.9, freq2: 80, amp2: 0.5]);
+a = Synth(\condan, [freq: 1400, amp: 0.9, freq2: 10, amp2: 0.5]);
 
 a.release(0.1);
 
@@ -143,7 +154,7 @@ a = Synth(\dirac, [freq: 800]);
 //================================ Functions ================================
 (
 
-~f0 = {|lenMul = 1, keyAdd = 0|
+~f0 = {|lenMul = 1, keyAdd = 0, amp_ = 0.5|
 // var lenMul = 0.7;
 
 Pbind(
@@ -155,7 +166,7 @@ Pbind(
 		// \dur, Pseq([1/8, 1/8, 1/4, 1/4, 1/4, 1/4, 1/4, 1/2, 1/4, 1/8, 1/8, 1/8, 1/8, 1/8, 1/8] * 1.2, inf),
 		\dur, Pseq([1/8, 1/8, 1/4, 1/4, 1/4, 1/4, 1/4, 1/2, 1/4, 1/16, 1/8, 3/16, 1/8, 1/8, 1/8] * 0.6 * lenMul, 1),
 		\delta, Pseq([1/8, 1/8, 1/4, 1/4, 1/4, 1/4, 1/4, 1/2, 1/4, 1/16, 1/8, 3/16, 1/8, 1/8, 1/8] * lenMul, 1),
-		// \amp, 0.1
+		\amp, amp_
 	);
 
 };
@@ -163,6 +174,7 @@ Pbind(
 ~f1 = {|lenMul = 1, keyAdd = 0, inst = "default", ampMul = 1|
 // var lenMul = 0.7;
 
+Pdef(\bgm,
 Pbind(
 		\instrument, inst,
 		// \freq, Pseq(60 - 24 +[\, 8, 14, 2, 4, 14, 12, 4, 5, \, 7, \, 7, 7, \],inf).midicps,
@@ -173,7 +185,7 @@ Pbind(
 		\dur, Pseq([1/4, 1/4, 1/4, 1/4, 1/4, 1/4, 1/4, 1/4, 1/4, 1/4, 1/2, 1/4] * 0.6 * lenMul, inf),
 		\delta, Pseq([1/2, 1/2, 1/2, 1/2, 1/2, 1/2, 1/2, 1/2, 1/2, 1/2, 1, 1/2] * lenMul, inf),
 		\amp, Pseq([1, 0.6, 0.6, 0.8, 0.6, 0.6, 0.7, 0.8, 0.7, 0.7, 0.8, 0.6] * ampMul, inf),
-	);
+	));
 
 };
 
@@ -208,8 +220,24 @@ Pbind(
 
 )
 
-~p = ~f1.(1.2, 5, \sophi, 0.1);~e = ~p.asEventStreamPlayer;
-~e.play;
+
+
+// BGM
+~bgm = ~f1.(1.2, 5, \sophi, 0.04);
+~bgm.fadeTime_(5);
+~bgm.stop;~bgm = ~f1.(1.2, 5, \sophi, 0.04);~bgm.play;
+~bgm.stop;~bgm = ~f1.(1.2, 6.3, \sophi, 0.04);~bgm.play;
+~bgm.stop;~bgm = ~f1.(1.3, 96, \sophi, 0.03);~bgm.play;
+~bgm = ~f1.(1.4, 96, \sophi, 0.0);
+~bgm.stop;
+
+
+// BGM
+// ~e.stop;~p = ~f1.(1.2, 5, \sophi, 0.04);~e = ~p.asEventStreamPlayer;~e.play; // stage 2
+// ~e.stop;~p = ~f1.(1.2, 6, \sophi, 0.04);~e = ~p.asEventStreamPlayer;~e.play; // stage 3
+// ~e.stop;~p = ~f1.(1.4, 96, \sophi, 0.03);~e = ~p.asEventStreamPlayer;~e.play; // stage 4
+
+
 
 //================================ OSCdef ================================
 (
@@ -221,11 +249,18 @@ var isOpen_2 = false;
 var isOpen_3 = false;
 
 ~soundOff = false;
+// amp
+~a0 = 0.5;
+~a1 = 0.3;
+~a2 = 0.05;
+~a3 = 0.5;
+~a6 = 0.2; // warning sound
 
-~p0 = ~f0.(1, 0);
-~p1 = ~f1.(1);
-~p2 = ~f2.(1);
-~p3 = ~f3.(1);
+
+~p0 = ~f0.(1, 0, ~a0);
+// ~p1 = ~f1.(1);
+// ~p2 = ~f2.(1);
+// ~p3 = ~f3.(1);
 
 // ~e1.free;~e2.free;~e3.free;
 ~e0 = nil;~e1 = nil;~e2 = nil;~e3 = nil;~e6 = nil;
@@ -254,19 +289,6 @@ OSCdef(\ball, {
 		var ori_sum = 0;
 	// msg.postln;
 	// addr.postln;
-	// msg.size.postln;
-
-	// trig = msg[2];
-	// count = count + 1;
-
-
-	// msg[4].postln;
-	// msg.postln;
-
-	// ~testCount = ~testCount + 1;
-	// ~testCount.postln;
-
-	// acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
 
 	if (~soundOff == false, {
 		switch (ballId)
@@ -274,8 +296,8 @@ OSCdef(\ball, {
 
 			if ( (msg[2] == 1) && (isOpen_0 == false), {
 				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
-				"0 is open".postln;
-				~p0 = ~f0.(1, 16);
+				// "0 is open".postln;
+				~p0 = ~f0.(1, 16, ~a0); //
 				~e0 = ~p0.asEventStreamPlayer;
 				~e0.play;
 				isOpen_0 = true;
@@ -292,7 +314,7 @@ OSCdef(\ball, {
 			if ( (msg[2] == 1) && (isOpen_1 == false), {
 				"1 open".postln;
 				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
-				~e1.set(\freq, acc_sum * 50, \amp, 0.7, \freq2, ori_x);
+				~e1.set(\freq, acc_sum * 50, \amp, ~a1, \freq2, ori_x);
 
 				isOpen_1 = true;
 			});
@@ -310,8 +332,7 @@ OSCdef(\ball, {
 				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
 				ori_sum = abs(ori_x) + abs(ori_y) + abs(ori_z);
 
-				Ndef(\pulsepulse).set(\freq, acc_sum * 10, \freq_reson, abs(ori_x*2), \freq_trig, 10, \amp, 0.05);
-				// Ndef(\pulsepulse).set(\freq, acc_sum/2, \freq_reson, ori_sum * 10, \freq_trig, 10, \amp, 0.05);
+				Ndef(\pulsepulse).set(\freq, acc_sum * 10, \freq_reson, abs(ori_x*2), \freq_trig, 10, \amp, ~a2);
 				isOpen_2 = true;
 			});
 
@@ -330,32 +351,28 @@ OSCdef(\ball, {
 		}
 		{3} {
 			if ( (msg[2] == 1), {
-				// bombing...
-				~e3 = Synth(\woong, [\freq, acc_sum.linlin(0, 100, 30, 240), \freq2, ori_x.linlin(0, 360, 40, 200), \freq3, ori_y.linlin(0, 100, 30, 90), \sn, 8, \cutoff, ori_z.linlin(0, 100, 180, 400)]);
 
+				// bombing...
 
 				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
 
-				// melancholy
-				// ~e3 = Synth(\liedR, [\freq, acc_sum.linlin(0, 100, 30, 240)]);
-				// ~e3.set(\freq, acc_sum.linlin(0, 100, 55, 79).midicps, \efxfreq, 200, \amp, 0.7);
-				// ~e3.set(\freq, acc_sum.linlin(0, 100, 66, 70).midicps, \amp, 0.6);
-
+				~e3 = Synth(\woong, [
+					\freq, acc_sum.linlin(0, 100, 30, 240), \freq2, ori_x.linlin(0, 360, 40, 200),
+					\freq3, ori_y.linlin(0, 100, 30, 90), \sn, 8, \cutoff, ori_z.linlin(0, 100, 180, 400),
+					\amp, ~a3 + (msg[3] * 0.25) // msg[3] will be 0 ~ 20
+				]);
 			});
 
 			if (msg[2] == 0, {
 				isOpen_3 = false;
 			});
-
-
-
 		}
 
 		{5} { // Ending stage
 			// like beep "삐---"
 
 			if ( msg[2] == 0, { // NOT STOP
-				~e6 = Synth("help-TCoin", [\freq, 5000, \rel, 0.1]); // 0
+				~e6 = Synth("help-TCoin", [\freq, 5000, \rel, 0.1, \amp, ~a6]); // 0
 			});
 
 			if (msg[2] == 1, { // STOP
@@ -366,7 +383,14 @@ OSCdef(\ball, {
 
 		}
 		{6} { // sound off
+
+			// send osc to another SC
+			n = NetAddr("127.0.0.1", 57120); // another SC machine
+			n.sendMsg("/bombard", 0.3);
+
 			~soundOff = true;
+
+
 		}
 	});
 
@@ -374,6 +398,7 @@ OSCdef(\ball, {
 	if (~soundOff == true, {
 		~e0.stop;~e0 = nil;
 		Ndef.clear;
+		Pdef.clear; // for bgm off
 		~e1.free;~e3.free;
 
 		OSCdef(\ball).clear;
@@ -386,3 +411,6 @@ CmdPeriod.doOnce{
 }
 )
 
+
+
+OSCdef

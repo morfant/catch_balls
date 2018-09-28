@@ -105,7 +105,7 @@ var CATCH_BALL_2_started = false;
 // counter
 var flyingCount = [0, 0, 0, 0];
 var socketIdxCnt = 0;
-var endingCatchBallCount = 0;
+var endingCatchBallCount = 0; // will work only on ball_3
 
 
 
@@ -288,7 +288,7 @@ io.on('connection',  function(socket) {
                 args: [
                     { type: "i", value: ballID },
                     { type: "i", value: STATUS_STOPPED },
-                    { type: "i", value: endingCatchBallCount} // set amp using count
+                    // { type: "i", value: endingCatchBallCount} // set amp using count
                 ]
             }, "127.0.0.1", 57120);
 
@@ -333,43 +333,41 @@ io.on('connection',  function(socket) {
             } else if (stage == CATCH_BALL_ENDDING) {
                 // broadcast
                 // ori_obj.x can not be 1000. This is a sign about it.
-                io.emit('setBackground', {value: 1000}); // make background color as white
+                // io.emit('setBackground', {value: 1000}); // make background color as white
 
                 if (hasBallFlown[ballID]) {
-                    endingCatchBallCount++;
-                    console.log("endingCatchBallCount: " + endingCatchBallCount);
+                    // endingCatchBallCount++;
+                    // console.log("endingCatchBallCount: " + endingCatchBallCount);
                     hasBallFlown[ballID] = false;
                 }
 
-                ENDING_CATCH_BALL_LIMIT = 5;
-                
-                if (endingCatchBallCount > (ENDING_CATCH_BALL_LIMIT + 1)) {
-                    // final falling
-                    // sound off
-                    udpPort.send({
-                        address: "/isBallStopped",
-                        args: [
-                            { type: "i", value: SOUND_OFF_ID}
-                        ]
-                    }, "127.0.0.1", 57120);
+                // if (endingCatchBallCount > (ENDING_CATCH_BALL_LIMIT + 1)) {
+                //     // final falling
+                //     // sound off
+                //     udpPort.send({
+                //         address: "/isBallStopped",
+                //         args: [
+                //             { type: "i", value: SOUND_OFF_ID}
+                //         ]
+                //     }, "127.0.0.1", 57120);
 
-                    // chage stage
-                    stage = LOGGED_OUT;
-                    io.emit('setStage', {value: LOGGED_OUT});
+                //     // chage stage
+                //     stage = LOGGED_OUT;
+                //     io.emit('setStage', {value: LOGGED_OUT});
 
-                } else if (endingCatchBallCount > ENDING_CATCH_BALL_LIMIT) {
+                // } else if (endingCatchBallCount > ENDING_CATCH_BALL_LIMIT) {
 
-                    // console.log("over limit count")
-                    // SOUND
-                    udpPort.send({
-                        address: "/isBallStopped",
-                        args: [
-                            { type: "i", value: ENDING_BALL_ID}, // specific number for represent over count limit
-                            { type: "i", value: STATUS_STOPPED} 
-                        ]
-                    }, "127.0.0.1", 57120);
+                //     // console.log("over limit count")
+                //     // SOUND
+                //     udpPort.send({
+                //         address: "/isBallStopped",
+                //         args: [
+                //             { type: "i", value: ENDING_BALL_ID}, // specific number for represent over count limit
+                //             { type: "i", value: STATUS_STOPPED} 
+                //         ]
+                //     }, "127.0.0.1", 57120);
 
-                }
+                // }
                 
             }  
 
@@ -429,8 +427,8 @@ io.on('connection',  function(socket) {
 
             else if (stage == CATCH_BALL_ENDDING) {
                 // broadcast
-                var sumAcc = Math.abs(acc_obj[ballID].x) + Math.abs(acc_obj[ballID].y) + Math.abs(acc_obj[ballID].z);
-                io.emit('setBackground', {value: sumAcc});
+                // var sumAcc = Math.abs(acc_obj[ballID].x) + Math.abs(acc_obj[ballID].y) + Math.abs(acc_obj[ballID].z);
+                // io.emit('setBackground', {value: sumAcc});
                 hasBallFlown[ballID] = true;
             } 
 
@@ -490,7 +488,7 @@ io.on('connection',  function(socket) {
                 args: [
                     { type: "i", value: ballID },
                     { type: "i", value: STATUS_STOPPED },
-                    { type: "i", value: endingCatchBallCount} // set amp using count
+                    // { type: "i", value: endingCatchBallCount} // set amp using count
                 ]
             }, "127.0.0.1", 57120);
 
@@ -535,43 +533,42 @@ io.on('connection',  function(socket) {
             } else if (stage == CATCH_BALL_ENDDING) {
                 // broadcast
                 // ori_obj.x can not be 1000. This is a sign about it.
-                io.emit('setBackground', {value: 1000}); // make background color as white
+                // io.emit('setBackground', {value: 1000}); // make background color as white
 
                 if (hasBallFlown[ballID]) {
-                    endingCatchBallCount++;
-                    console.log("endingCatchBallCount: " + endingCatchBallCount);
+                    // endingCatchBallCount++;
+                    // console.log("endingCatchBallCount: " + endingCatchBallCount);
                     hasBallFlown[ballID] = false;
                 }
 
-                ENDING_CATCH_BALL_LIMIT = 5;
                 
-                if (endingCatchBallCount > (ENDING_CATCH_BALL_LIMIT + 1)) {
-                    // final falling
-                    // sound off
-                    udpPort.send({
-                        address: "/isBallStopped",
-                        args: [
-                            { type: "i", value: SOUND_OFF_ID}
-                        ]
-                    }, "127.0.0.1", 57120);
+                // if (endingCatchBallCount > (ENDING_CATCH_BALL_LIMIT + 1)) {
+                //     // final falling
+                //     // sound off
+                //     udpPort.send({
+                //         address: "/isBallStopped",
+                //         args: [
+                //             { type: "i", value: SOUND_OFF_ID}
+                //         ]
+                //     }, "127.0.0.1", 57120);
 
-                    // chage stage
-                    stage = LOGGED_OUT;
-                    io.emit('setStage', {value: LOGGED_OUT});
+                //     // chage stage
+                //     stage = LOGGED_OUT;
+                //     io.emit('setStage', {value: LOGGED_OUT});
 
-                } else if (endingCatchBallCount > ENDING_CATCH_BALL_LIMIT) {
+                // } else if (endingCatchBallCount > ENDING_CATCH_BALL_LIMIT) {
 
-                    // console.log("over limit count")
-                    // SOUND
-                    udpPort.send({
-                        address: "/isBallStopped",
-                        args: [
-                            { type: "i", value: ENDING_BALL_ID}, // specific number for represent over count limit
-                            { type: "i", value: STATUS_STOPPED} 
-                        ]
-                    }, "127.0.0.1", 57120);
+                //     // console.log("over limit count")
+                //     // SOUND
+                //     udpPort.send({
+                //         address: "/isBallStopped",
+                //         args: [
+                //             { type: "i", value: ENDING_BALL_ID}, // specific number for represent over count limit
+                //             { type: "i", value: STATUS_STOPPED} 
+                //         ]
+                //     }, "127.0.0.1", 57120);
 
-                }
+                // }
                 
             }  
 
@@ -627,8 +624,8 @@ io.on('connection',  function(socket) {
                 // io.emit('setRotation', {value: ori_obj[ballID].x});
             } else if (stage == CATCH_BALL_ENDDING) {
                 // broadcast
-                var sumAcc = Math.abs(acc_obj[ballID].x) + Math.abs(acc_obj[ballID].y) + Math.abs(acc_obj[ballID].z);
-                io.emit('setBackground', {value: sumAcc});
+                // var sumAcc = Math.abs(acc_obj[ballID].x) + Math.abs(acc_obj[ballID].y) + Math.abs(acc_obj[ballID].z);
+                // io.emit('setBackground', {value: sumAcc});
                 hasBallFlown[ballID] = true;
             } 
 
@@ -689,7 +686,7 @@ io.on('connection',  function(socket) {
                 args: [
                     { type: "i", value: ballID },
                     { type: "i", value: STATUS_STOPPED },
-                    { type: "i", value: endingCatchBallCount} // set amp using count
+                    // { type: "i", value: endingCatchBallCount} // set amp using count
                 ]
             }, "127.0.0.1", 57120);
 
@@ -734,43 +731,42 @@ io.on('connection',  function(socket) {
             } else if (stage == CATCH_BALL_ENDDING) {
                 // broadcast
                 // ori_obj.x can not be 1000. This is a sign about it.
-                io.emit('setBackground', {value: 1000}); // make background color as white
+                // io.emit('setBackground', {value: 1000}); // make background color as white
 
                 if (hasBallFlown[ballID]) {
-                    endingCatchBallCount++;
-                    console.log("endingCatchBallCount: " + endingCatchBallCount);
+                    // endingCatchBallCount++;
+                    // console.log("endingCatchBallCount: " + endingCatchBallCount);
                     hasBallFlown[ballID] = false;
                 }
 
-                ENDING_CATCH_BALL_LIMIT = 5;
                 
-                if (endingCatchBallCount > (ENDING_CATCH_BALL_LIMIT + 1)) {
-                    // final falling
-                    // sound off
-                    udpPort.send({
-                        address: "/isBallStopped",
-                        args: [
-                            { type: "i", value: SOUND_OFF_ID}
-                        ]
-                    }, "127.0.0.1", 57120);
+                // if (endingCatchBallCount > (ENDING_CATCH_BALL_LIMIT + 1)) {
+                //     // final falling
+                //     // sound off
+                //     udpPort.send({
+                //         address: "/isBallStopped",
+                //         args: [
+                //             { type: "i", value: SOUND_OFF_ID}
+                //         ]
+                //     }, "127.0.0.1", 57120);
 
-                    // chage stage
-                    stage = LOGGED_OUT;
-                    io.emit('setStage', {value: LOGGED_OUT});
+                //     // chage stage
+                //     stage = LOGGED_OUT;
+                //     io.emit('setStage', {value: LOGGED_OUT});
 
-                } else if (endingCatchBallCount > ENDING_CATCH_BALL_LIMIT) {
+                // } else if (endingCatchBallCount > ENDING_CATCH_BALL_LIMIT) {
 
-                    // console.log("over limit count")
-                    // SOUND
-                    udpPort.send({
-                        address: "/isBallStopped",
-                        args: [
-                            { type: "i", value: ENDING_BALL_ID}, // specific number for represent over count limit
-                            { type: "i", value: STATUS_STOPPED} 
-                        ]
-                    }, "127.0.0.1", 57120);
+                //     // console.log("over limit count")
+                //     // SOUND
+                //     udpPort.send({
+                //         address: "/isBallStopped",
+                //         args: [
+                //             { type: "i", value: ENDING_BALL_ID}, // specific number for represent over count limit
+                //             { type: "i", value: STATUS_STOPPED} 
+                //         ]
+                //     }, "127.0.0.1", 57120);
 
-                }
+                // }
                 
             }  
 
@@ -826,8 +822,8 @@ io.on('connection',  function(socket) {
                 // io.emit('setRotation', {value: ori_obj[ballID].x});
             } else if (stage == CATCH_BALL_ENDDING) {
                 // broadcast
-                var sumAcc = Math.abs(acc_obj[ballID].x) + Math.abs(acc_obj[ballID].y) + Math.abs(acc_obj[ballID].z);
-                io.emit('setBackground', {value: sumAcc});
+                // var sumAcc = Math.abs(acc_obj[ballID].x) + Math.abs(acc_obj[ballID].y) + Math.abs(acc_obj[ballID].z);
+                // io.emit('setBackground', {value: sumAcc});
                 hasBallFlown[ballID] = true;
             } 
 
@@ -942,8 +938,6 @@ io.on('connection',  function(socket) {
                     hasBallFlown[ballID] = false;
                 }
 
-                ENDING_CATCH_BALL_LIMIT = 5;
-                
                 if (endingCatchBallCount > (ENDING_CATCH_BALL_LIMIT + 1)) {
                     // final falling
                     // sound off
