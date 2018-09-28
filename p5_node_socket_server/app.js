@@ -97,8 +97,8 @@ var count_z = [[0], [0], [0], [0]];
 var isStop = [false, false, false, false];
 var isRotating = [false, false, false, false];
 var isFlying = [false, false, false, false];
-var isPrint_not_stopped = false;
-var isPrint_stopped = false;
+var isPrint_not_stopped = [false, false, false, false];
+var isPrint_stopped = [false, false, false, false];
 var hasBallFlown = [false, false, false, false];
 var CATCH_BALL_2_started = false;
 
