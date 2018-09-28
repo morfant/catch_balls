@@ -814,7 +814,7 @@ function makeAccObj(data, thr) {
     var obj = {
         x : splited[0], 
         y : splited[1],
-        z : splited[2]
+        z : splited[2].split('"')[0]
     };
 
     // discrimination : regard too small value as zero.

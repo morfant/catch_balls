@@ -5,18 +5,18 @@
 2 : 공의 움직임에 민감하게 반응함을 알 수 있는 고음, 얇은 소리
 3 : 약간 멜랑콜리한 늘어지고 빨라지고에 따라 느낌이 달라지는
 
-Synth(\gobeat);
-Synth(\sine, [\freq, 400, \amp, 3]); // ball 0
-Synth(\ddd, [\freq, 4000]); // 0
+Synth(\gobeat, [\freq, 2000]);
+Synth(\sine, [\freq, 4000, \amp, 3]); // ball 0
+Synth(\ddd, [\freq, 8000]); // 0
 Synth(\woong); // 1
 Synth(\dirac, [\freq, 700, \amp, 0.1]); // digital 적인데.. 0에 mix?
-Synth(\chal, [\amp, 1.0]); // 1
-Synth("help-TCoin", [\freq, 300]); // 0
+Synth(\chal, [\amp, 1.0, \freq, 2000]); // 1
+Synth("help-TCoin", [\freq, 5000, \rel, 4]); // 0
 
 
 // sustained
-Synth("help-TCoin_ori", [\freq, 300]); // 2
-Synth(\sori, [\amp, 1.0]); // 2
+Synth("help-TCoin_ori", [\freq, 3000]); // 2
+Synth(\sori, [\amp, 1.0, \freq, 100]); // 2
 Synth(\woonglong); // 3
 Synth(\hafen); // 1 or 2
 Synth(\liedR, [\freq, 1000]); // 3
@@ -215,9 +215,9 @@ SynthDef("help-TCoin_ori", { arg out=0, prob=0.5, freq = 20, freq_am = 0.5, amp 
 	)
 }).add;
 
-SynthDef("help-TCoin", { arg out=0, prob=0.5, freq = 20, freq_am = 0.5, amp = 0.2, gate = 1;
+SynthDef("help-TCoin", { arg out=0, prob=0.5, freq = 20, freq_am = 0.5, amp = 0.2, rel = 1, gate = 1;
 	var trig, env;
-	env = EnvGen.kr(Env.perc, gate, doneAction: 2);
+	env = EnvGen.kr(Env.perc(0.01, rel), gate, doneAction: 2);
 	trig = Impulse.ar(freq, 0, SinOsc.kr(freq_am,0,1,1));
 	// trig = Impulse.ar(SinOsc.kr(0.01, 0, freq+100, freq+300), 0, SinOsc.kr(freq_am,0,1,1));
 	Out.ar(out,

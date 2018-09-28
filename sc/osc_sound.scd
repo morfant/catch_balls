@@ -365,6 +365,8 @@ OSCdef(\ball, {
 		~e0.stop;~e0 = nil;
 		Ndef.clear;
 		~e1.free;~e3.free;
+
+		OSCdef(\ball).clear;
 	});
 
 }, '/isBallStopped'); // def style
