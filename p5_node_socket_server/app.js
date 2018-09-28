@@ -473,10 +473,10 @@ io.on('connection',  function(socket) {
         if (isStop[ballID] && !isRotating[ballID]) {
             isFlying[ballID] = false;
 
-            if (!isPrint_stopped){
+            if (!isPrint_stopped[ballID]){
                 console.log("ball " + ballID + " is stopped!!!!")
-                isPrint_stopped = true;
-                isPrint_not_stopped = false;
+                isPrint_stopped[ballID] = true;
+                isPrint_not_stopped[ballID] = false;
             }
 
             // osc to supercollider
@@ -574,10 +574,10 @@ io.on('connection',  function(socket) {
         } else {
 
             isFlying[ballID] = true;
-            if (!isPrint_not_stopped){
+            if (!isPrint_not_stopped[ballID]){
                 console.log("ball " + ballID + " is NOT stopped!!");
-                isPrint_not_stopped = true;
-                isPrint_stopped = false;
+                isPrint_not_stopped[ballID] = true;
+                isPrint_stopped[ballID] = false;
             }
 
             // SOUND
@@ -672,10 +672,10 @@ io.on('connection',  function(socket) {
         if (isStop[ballID] && !isRotating[ballID]) {
             isFlying[ballID] = false;
 
-            if (!isPrint_stopped){
+            if (!isPrint_stopped[ballID]){
                 console.log("ball " + ballID + " is stopped!!!!")
-                isPrint_stopped = true;
-                isPrint_not_stopped = false;
+                isPrint_stopped[ballID] = true;
+                isPrint_not_stopped[ballID] = false;
             }
 
             // osc to supercollider
@@ -773,10 +773,10 @@ io.on('connection',  function(socket) {
         } else {
 
             isFlying[ballID] = true;
-            if (!isPrint_not_stopped){
+            if (!isPrint_not_stopped[ballID]){
                 console.log("ball " + ballID + " is NOT stopped!!");
-                isPrint_not_stopped = true;
-                isPrint_stopped = false;
+                isPrint_not_stopped[ballID] = true;
+                isPrint_stopped[ballID] = false;
             }
 
             // SOUND
@@ -872,10 +872,10 @@ io.on('connection',  function(socket) {
         if (isStop[ballID] && !isRotating[ballID]) {
             isFlying[ballID] = false;
 
-            if (!isPrint_stopped){
+            if (!isPrint_stopped[ballID]){
                 console.log("ball " + ballID + " is stopped!!!!")
-                isPrint_stopped = true;
-                isPrint_not_stopped = false;
+                isPrint_stopped[ballID] = true;
+                isPrint_not_stopped[ballID] = false;
             }
 
             // osc to supercollider
@@ -973,10 +973,10 @@ io.on('connection',  function(socket) {
         } else {
 
             isFlying[ballID] = true;
-            if (!isPrint_not_stopped){
+            if (!isPrint_not_stopped[ballID]){
                 console.log("ball " + ballID + " is NOT stopped!!");
-                isPrint_not_stopped = true;
-                isPrint_stopped = false;
+                isPrint_not_stopped[ballID] = true;
+                isPrint_stopped[ballID] = false;
             }
 
             // SOUND
