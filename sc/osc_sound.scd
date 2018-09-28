@@ -2,6 +2,16 @@
 //================================ SynthDefs ================================
 
 (
+SynthDef(\gobeat, {|freq = 240, dur = 0.9, gate = 1, amp = 0.5|
+	// var env = Line.kr(0.2, 0.0, dur, doneAction:2);
+	var env = EnvGen.kr(Env.perc(0.01, dur), gate, doneAction: 2);
+	var sig = SinOsc.ar(freq, 0);
+	var verb = GVerb.ar(sig, 80, 4.85, 0.41, 0.19, 15, -3, -9, -11);
+
+	Out.ar(0, verb*env*amp + sig*env*amp);
+}).add;
+
+
 SynthDef(\sine, {|freq = 440, dur = 1.0, trig = 1|
 	// var env = Line.kr(0.2, 0.0, dur, doneAction:2);
 	var env = EnvGen.kr(Env.perc(0.01, 0.03), trig, doneAction: 2);
@@ -260,7 +270,7 @@ OSCdef(\ball, {
 
 	if (~soundOff == false, {
 		switch (ballId)
-		{9} {
+		{0} {
 
 			if ( (msg[2] == 1) && (isOpen_0 == false), {
 				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
@@ -278,7 +288,7 @@ OSCdef(\ball, {
 			});
 
 		}
-		{4} {
+		{1} {
 			if ( (msg[2] == 1) && (isOpen_1 == false), {
 				"1 open".postln;
 				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
@@ -293,7 +303,7 @@ OSCdef(\ball, {
 			});
 
 		}
-		{8} {
+		{2} {
 			// if ( (msg[2] == 1) && (isOpen_2 == false), {
 			if ( (msg[2] == 1), {
 				"on".postln;
@@ -318,7 +328,7 @@ OSCdef(\ball, {
 
 
 		}
-		{0} {
+		{3} {
 			if ( (msg[2] == 1), {
 				// bombing...
 				~e3 = Synth(\woong, [\freq, acc_sum.linlin(0, 100, 30, 240), \freq2, ori_x.linlin(0, 360, 40, 200), \freq3, ori_y.linlin(0, 100, 30, 90), \sn, 8, \cutoff, ori_z.linlin(0, 100, 180, 400)]);

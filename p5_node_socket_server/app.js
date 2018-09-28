@@ -329,7 +329,7 @@ io.on('connection',  function(socket) {
                 }
             } else if (stage == CATCH_BALL_4) {
                 // broadcast
-                io.emit('drawText', {value: 1});
+                if (ballID == 2) io.emit('drawText', {value: 1});
             } else if (stage == CATCH_BALL_ENDDING) {
                 // broadcast
                 // ori_obj.x can not be 1000. This is a sign about it.
@@ -420,10 +420,14 @@ io.on('connection',  function(socket) {
                     io.emit('drawImages', {value: 1, _alpha: ori_obj[ballID].x});
                 // }
 
-            } else if (stage == CATCH_BALL_4) {
-                io.emit('drawText', {value: 0});
+            }
+
+            else if (stage == CATCH_BALL_4) {
+                if (ballID == 2) io.emit('drawText', {value: 0});
                 // io.emit('setRotation', {value: ori_obj[ballID].x});
-            } else if (stage == CATCH_BALL_ENDDING) {
+            }
+
+            else if (stage == CATCH_BALL_ENDDING) {
                 // broadcast
                 var sumAcc = Math.abs(acc_obj[ballID].x) + Math.abs(acc_obj[ballID].y) + Math.abs(acc_obj[ballID].z);
                 io.emit('setBackground', {value: sumAcc});
@@ -527,7 +531,7 @@ io.on('connection',  function(socket) {
                 }
             } else if (stage == CATCH_BALL_4) {
                 // broadcast
-                io.emit('drawText', {value: 1});
+                if (ballID == 2) io.emit('drawText', {value: 1});
             } else if (stage == CATCH_BALL_ENDDING) {
                 // broadcast
                 // ori_obj.x can not be 1000. This is a sign about it.
@@ -619,7 +623,7 @@ io.on('connection',  function(socket) {
                 // }
 
             } else if (stage == CATCH_BALL_4) {
-                io.emit('drawText', {value: 0});
+                if (ballID == 2) io.emit('drawText', {value: 0});
                 // io.emit('setRotation', {value: ori_obj[ballID].x});
             } else if (stage == CATCH_BALL_ENDDING) {
                 // broadcast
@@ -726,7 +730,7 @@ io.on('connection',  function(socket) {
                 }
             } else if (stage == CATCH_BALL_4) {
                 // broadcast
-                io.emit('drawText', {value: 1});
+                if (ballID == 2) io.emit('drawText', {value: 1});
             } else if (stage == CATCH_BALL_ENDDING) {
                 // broadcast
                 // ori_obj.x can not be 1000. This is a sign about it.
@@ -818,7 +822,7 @@ io.on('connection',  function(socket) {
                 // }
 
             } else if (stage == CATCH_BALL_4) {
-                io.emit('drawText', {value: 0});
+                if (ballID == 2) io.emit('drawText', {value: 0});
                 // io.emit('setRotation', {value: ori_obj[ballID].x});
             } else if (stage == CATCH_BALL_ENDDING) {
                 // broadcast
@@ -926,7 +930,7 @@ io.on('connection',  function(socket) {
                 }
             } else if (stage == CATCH_BALL_4) {
                 // broadcast
-                io.emit('drawText', {value: 1});
+                if (ballID == 2) io.emit('drawText', {value: 1});
             } else if (stage == CATCH_BALL_ENDDING) {
                 // broadcast
                 // ori_obj.x can not be 1000. This is a sign about it.
@@ -1018,7 +1022,7 @@ io.on('connection',  function(socket) {
                 // }
 
             } else if (stage == CATCH_BALL_4) {
-                io.emit('drawText', {value: 0});
+                if (ballID == 2) io.emit('drawText', {value: 0});
                 // io.emit('setRotation', {value: ori_obj[ballID].x});
             } else if (stage == CATCH_BALL_ENDDING) {
                 // broadcast
