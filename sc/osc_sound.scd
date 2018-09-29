@@ -43,22 +43,24 @@ SynthDef(\condan, {|freq = 240, dur = 5, gate = 1, amp = 0.5, freq2 = 33, amp2 =
 Ndef(\pulsepulse, {|freq = 200, freq_reson = 100, freq_trig = 4, amp = 0.02 |
 	var sig = Impulse.ar(freq);
 	var trig = Impulse.kr(freq_trig);
-	var env = EnvGen.kr(Env.perc(0.0, 0.8), trig);
+	var env = EnvGen.kr(Env.perc(0.0, 0.8), trig, doneAction: 2);
 	Pan2.ar(Mix.fill(6, {Ringz.ar(sig, TRand.kr(freq_reson, freq_reson*1.5, trig), 0.01)}), 0, env * amp);
-}).fadeTime_(0.01);
+}).fadeTime_(0.001);
 
 
 
 SynthDef(\woong,
     {
         arg cutoff = 202, rq = 1.0, sn = 8, amp = 0.5, gate = 1, freq = 55, freq2 = 75, freq3 = 100;
-        var sig, fil, lfo, env;
+        var sig, fil, lfo, env, fil2;
 
 		env = EnvGen.kr(Env.perc(0.01, 0.4), gate, doneAction: 2);
         lfo = LFClipNoise.kr(sn, mul: 0.5, add: 0.5);
 		sig = Mix.new([Saw.ar(freq, mul: amp/2), Saw.ar(freq3, mul: amp/2), Saw.ar(freq2, mul: amp/2)]);
         fil = RLPF.ar(sig, cutoff, rq);
-		Out.ar(0, Pan2.ar(fil*amp*env, 0));
+		fil2 = HPF.ar(fil, 250);
+		// Out.ar(0, Pan2.ar(fil*amp*env, 0));
+		Out.ar(0, Pan2.ar(fil2*amp*env, 0));
     }
 ).add;
 
@@ -132,7 +134,7 @@ a = Synth(\woong);
 Ndef(\pulsepulse).play;
 Ndef(\pulsepulse).set(\freq, 400, \freq_trig, 3, \freq_reson, 2900, \amp, 0.02);
 Ndef(\pulsepulse).set(\freq, 4, \freq_trig, 10, \freq_reson, 200, \amp, 0.02);
-
+Ndef(\pulsepulse).stop;
 
 TRand
 a = Synth(\sine2);
@@ -225,17 +227,16 @@ Pbind(
 // BGM
 ~bgm = ~f1.(1.2, 5, \sophi, 0.04);
 ~bgm.fadeTime_(5);
-~bgm.stop;~bgm = ~f1.(1.2, 5, \sophi, 0.04);~bgm.play;
-~bgm.stop;~bgm = ~f1.(1.2, 6.3, \sophi, 0.04);~bgm.play;
-~bgm.stop;~bgm = ~f1.(1.3, 96, \sophi, 0.03);~bgm.play;
-~bgm = ~f1.(1.4, 96, \sophi, 0.0);
+~bgm.stop;~bgm = ~f1.(1.2, 5, \sophi, 0.02);~bgm.play;
+~bgm.stop;~bgm = ~f1.(1.2, 6.3, \sophi, 0.02);~bgm.play;
+~bgm.stop;~bgm = ~f1.(1.3, 96, \sophi, 0.01);~bgm.play;
+~bgm = ~f1.(1.4, 96, \sophi, 0.0); //~bgm fade out
 ~bgm.stop;
 
 
-// BGM
-// ~e.stop;~p = ~f1.(1.2, 5, \sophi, 0.04);~e = ~p.asEventStreamPlayer;~e.play; // stage 2
-// ~e.stop;~p = ~f1.(1.2, 6, \sophi, 0.04);~e = ~p.asEventStreamPlayer;~e.play; // stage 3
-// ~e.stop;~p = ~f1.(1.4, 96, \sophi, 0.03);~e = ~p.asEventStreamPlayer;~e.play; // stage 4
+// Ndef 응급 조치
+Ndef(\pulsepulse).stop;
+Ndef(\pulsepulse).play;
 
 
 
@@ -250,10 +251,11 @@ var isOpen_3 = false;
 
 ~soundOff = false;
 // amp
-~a0 = 0.5;
-~a1 = 0.3;
+~a0 = 0.35;
+~a1 = 1;
 ~a2 = 0.05;
-~a3 = 0.5;
+~a3 = 0.7;
+~aa3 = 0;
 ~a6 = 0.2; // warning sound
 
 
@@ -311,6 +313,21 @@ OSCdef(\ball, {
 
 		}
 		{1} {
+			if ( (msg[2] == 1), {
+				// "on".postln;
+				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
+				ori_sum = abs(ori_x) + abs(ori_y) + abs(ori_z);
+
+				Ndef(\pulsepulse).set(\freq, acc_sum * 10, \freq_reson, abs(ori_x*2), \freq_trig, 10, \amp, ~a2);
+				isOpen_2 = true;
+			});
+
+			if (msg[2] == 0, {
+				Ndef(\pulsepulse).set(\amp, 0);
+				isOpen_2 = false;
+			});
+		}
+		{2} {
 			if ( (msg[2] == 1) && (isOpen_1 == false), {
 				"1 open".postln;
 				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
@@ -325,45 +342,24 @@ OSCdef(\ball, {
 			});
 
 		}
-		{2} {
-			// if ( (msg[2] == 1) && (isOpen_2 == false), {
-			if ( (msg[2] == 1), {
-				"on".postln;
-				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
-				ori_sum = abs(ori_x) + abs(ori_y) + abs(ori_z);
-
-				Ndef(\pulsepulse).set(\freq, acc_sum * 10, \freq_reson, abs(ori_x*2), \freq_trig, 10, \amp, ~a2);
-				isOpen_2 = true;
-			});
-
-			if (msg[2] == 0, {
-				// "off".postln;
-				/*			~testCount = ~testCount + 1;
-				~testCount.postln;*/
-
-				Ndef(\pulsepulse).set(\amp, 0);
-				isOpen_2 = false;
-			});
-
-
-
-
-		}
 		{3} {
 			if ( (msg[2] == 1), {
 
-				// bombing...
+				// msg[3].postln;
 
+				// bombing...
 				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
 
 				~e3 = Synth(\woong, [
 					\freq, acc_sum.linlin(0, 100, 30, 240), \freq2, ori_x.linlin(0, 360, 40, 200),
 					\freq3, ori_y.linlin(0, 100, 30, 90), \sn, 8, \cutoff, ori_z.linlin(0, 100, 180, 400),
-					\amp, ~a3 + (msg[3] * 0.25) // msg[3] will be 0 ~ 20
+					\amp, ~a3 + ~aa3
 				]);
 			});
 
 			if (msg[2] == 0, {
+				~aa3 = (msg[3] * 0.03); // msg[3] will be 0 ~ 20
+				~aa3.postln;
 				isOpen_3 = false;
 			});
 		}
@@ -385,8 +381,8 @@ OSCdef(\ball, {
 		{6} { // sound off
 
 			// send osc to another SC
-			n = NetAddr("127.0.0.1", 57120); // another SC machine
-			n.sendMsg("/bombard", 0.3);
+			// n = NetAddr("127.0.0.1", 57120); // another SC machine
+			// n.sendMsg("/bombard", 0.3);
 
 			~soundOff = true;
 
@@ -410,7 +406,3 @@ CmdPeriod.doOnce{
 
 }
 )
-
-
-
-OSCdef
