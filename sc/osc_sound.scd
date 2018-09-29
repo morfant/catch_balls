@@ -329,7 +329,7 @@ OSCdef(\ball, {
 		}
 		{2} {
 			if ( (msg[2] == 1) && (isOpen_1 == false), {
-				"1 open".postln;
+				// "1 open".postln;
 				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
 				~e1.set(\freq, acc_sum * 50, \amp, ~a1, \freq2, ori_x);
 
@@ -359,7 +359,7 @@ OSCdef(\ball, {
 
 			if (msg[2] == 0, {
 				~aa3 = (msg[3] * 0.03); // msg[3] will be 0 ~ 20
-				~aa3.postln;
+				// ~aa3.postln;
 				isOpen_3 = false;
 			});
 		}
