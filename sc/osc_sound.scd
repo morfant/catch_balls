@@ -289,7 +289,7 @@ OSCdef(\ball, {
 
 	    var acc_sum = 0;
 		var ori_sum = 0;
-	// msg.postln;
+	msg.postln;
 	// addr.postln;
 
 	if (~soundOff == false, {
