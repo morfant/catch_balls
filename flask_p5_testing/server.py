@@ -2,9 +2,11 @@
 # Nature of Code: Intelligence and Learning
 # https://github.com/shiffman/NOC-S17-2-Intelligence-Learning
 
+
 # import everything we need
 from flask import Flask, jsonify, request
 from flask_socketio import SocketIO, join_room
+
 
 import argparse, random, time
 from pythonosc import osc_message_builder
@@ -16,7 +18,8 @@ app = Flask(__name__)
 app.debug = True
 
 # SocketIO
-socketio = SocketIO(app)
+socketio =  SocketIO(app, async_handlers=True)
+# socketio =  SocketIO(app, async_mode='eventlet')
 
 # stage labels
 GRAPH = -1;
@@ -165,6 +168,17 @@ def handle_disconnetion():
     print(socketClientList)
 
 
+@socketio.on('ball_0')
+def handle_ball_0():
+
+@socketio.on('ball_1')
+def handle_ball_1():
+
+@socketio.on('ball_2')
+def handle_ball_2():
+
+@socketio.on('ball_3')
+def handle_ball_3():
 
 
 
@@ -173,13 +187,16 @@ def handle_disconnetion():
 
 # Run app:
 if __name__ == '__main__':
-    socketio.run(app)
 
 
     # Localhost and port 8080
-    app.run( host='0.0.0.0', port=5000, debug=False )
+    app.run( host='0.0.0.0', port=8080, debug=False)
     # If you enable debugging, you'll get more info
     # server will restart automatically when code changes, etc.
     # app.run( host='0.0.0.0', port=8080, debug=True )
+
+
+
+    socketio.run(app)
 
 
