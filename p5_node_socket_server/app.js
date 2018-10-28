@@ -236,9 +236,211 @@ io.on('connection',  function(socket) {
     });
 
 
-    // socket.on('ball_0', function(data){
+    socket.on('ball_1', function(data){
 
-    //     var ballID = 0;
+        var ballID = 0;
+        // console.log("ball_0");
+        // console.log(data);
+
+        // split by '|'
+        var o = data.split('|')[0]; // orientation
+        var a = data.split('|')[1]; // accelerometer
+        // var g = data.split('|')[2]; // accelerometer
+        // console.log("ori: " + o);
+        // console.log("acc: " + a);
+
+        ori_obj[ballID] = makeOriObj(o, 3); // it should change to be more simple process.
+        acc_obj[ballID] = makeAccObj(a, 2); // (obj, threshold to zero)
+        // g_obj[ballID] = makeGObj(g, 1); // (obj, threshold to zero)
+
+        // console.log(acc_obj[ballID]);
+
+        if (stage == GRAPH) {
+            // send for drawing graph
+            io.emit('acc'+ballID, acc_obj[ballID]);
+            io.emit('ori'+ballID, ori_obj[ballID]);
+            // io.emit('g'+ballID, g_obj[ballID]);
+        }
+
+        if (stage == LOGGING_IN) {
+            socketIdxCnt = 0;
+        }
+
+        if (stage != LOGGED_OUT) {
+            isRotating[ballID] = checkSpin(ballID, 20, 20);
+            isStop[ballID] = checkStop(ballID, 1, 10);
+        }
+
+        // when ball is stop..
+        if (isStop[ballID] && !isRotating[ballID]) {
+            isFlying[ballID] = false;
+
+            if (!isPrint_stopped[ballID]){
+                console.log("ball " + ballID + " is stopped!!!!")
+                isPrint_stopped[ballID] = true;
+                isPrint_not_stopped[ballID] = false;
+            }
+
+            // osc to supercollider
+            // SOUND
+            udpPort.send({
+                address: "/isBallStopped",
+                args: [
+                    { type: "i", value: ballID },
+                    { type: "i", value: STATUS_STOPPED },
+                    // { type: "i", value: endingCatchBallCount} // set amp using count
+                ]
+            }, "127.0.0.1", 57120);
+
+
+            // VISUAL - on stop
+            if (stage == CATCH_BALL_1) {
+                // console.log("stage CATCH_BALL_1");
+
+                if (hasBallFlown[ballID]) {
+                    // emit to all client sequencely
+                    var id = socketClientList[socketIdxCnt];
+                    var len = socketClientList.length;
+
+                    if (socketIdxCnt < len) {
+                        console.log(id);
+                        io.to(id).emit('setStage', {value: CATCH_BALL_1});
+                        socketIdxCnt++;
+                    } else {
+                        socketIdxCnt = 0;
+                    }
+
+                    console.log(socketIdxCnt + "/" + len);
+                    hasBallFlown[ballID] = false;
+                }
+
+            } else if (stage == CATCH_BALL_2) {
+                if (hasBallFlown[ballID]) {
+                    // broadcast
+                    io.emit('variantBotany', {value: 1});
+                    hasBallFlown[ballID] = false;
+                }
+            } else if (stage == CATCH_BALL_3) {
+                if (hasBallFlown[ballID]) {
+                    // broadcast
+                    io.emit('variantBotany', {value: 1});
+                    io.emit('drawImages', {value: 0, _alpha: 0}); // trajectory images
+                    hasBallFlown[ballID] = false;
+                }
+            } else if (stage == CATCH_BALL_4) {
+                // broadcast
+                // if (ballID == 2) io.emit('drawText', {value: 1});
+                io.emit('drawText', {value: 1});
+            } else if (stage == CATCH_BALL_ENDDING) {
+                // broadcast
+                // ori_obj.x can not be 1000. This is a sign about it.
+                io.emit('setBackground', {value: 1000}); // make background color as white
+
+                if (hasBallFlown[ballID]) {
+                    // endingCatchBallCount++;
+                    // console.log("endingCatchBallCount: " + endingCatchBallCount);
+                    hasBallFlown[ballID] = false;
+                }
+
+                // if (endingCatchBallCount > (ENDING_CATCH_BALL_LIMIT + 1)) {
+                //     // final falling
+                //     // sound off
+                //     udpPort.send({
+                //         address: "/isBallStopped",
+                //         args: [
+                //             { type: "i", value: SOUND_OFF_ID}
+                //         ]
+                //     }, "127.0.0.1", 57120);
+
+                //     // chage stage
+                //     stage = LOGGED_OUT;
+                //     io.emit('setStage', {value: LOGGED_OUT});
+
+                // } else if (endingCatchBallCount > ENDING_CATCH_BALL_LIMIT) {
+
+                //     // console.log("over limit count")
+                //     // SOUND
+                //     udpPort.send({
+                //         address: "/isBallStopped",
+                //         args: [
+                //             { type: "i", value: ENDING_BALL_ID}, // specific number for represent over count limit
+                //             { type: "i", value: STATUS_STOPPED} 
+                //         ]
+                //     }, "127.0.0.1", 57120);
+
+                // }
+                
+            }  
+
+        } else {
+
+            isFlying[ballID] = true;
+            if (!isPrint_not_stopped[ballID]){
+                console.log("ball " + ballID + " is NOT stopped!!");
+                isPrint_not_stopped[ballID] = true;
+                isPrint_stopped[ballID] = false;
+            }
+
+            // SOUND
+            udpPort.send({
+                address: "/isBallStopped",
+                args: [
+                    { type: "i", value: ballID },
+                    { type: "i", value: STATUS_NOT_STOPPED },
+                    { type: "f", value: acc_obj[ballID].x },
+                    { type: "f", value: acc_obj[ballID].y },
+                    { type: "f", value: acc_obj[ballID].z },
+                    { type: "f", value: ori_obj[ballID].x },
+                    { type: "f", value: ori_obj[ballID].y },
+                    { type: "f", value: ori_obj[ballID].z },
+
+                ]
+            }, "127.0.0.1", 57120);
+
+
+            // VISUAL - flying
+            if (stage == CATCH_BALL_1) {
+
+                hasBallFlown[ballID] = true;
+            } else if (stage == CATCH_BALL_2) {
+
+                if (!CATCH_BALL_2_started){
+                    io.emit('drawFirstBotany', {value: 1});
+                    CATCH_BALL_2_started = true;
+                } 
+
+                hasBallFlown[ballID] = true;
+                io.emit('setRotation', {value: ori_obj[ballID].x});
+
+            } else if (stage == CATCH_BALL_3) {
+                hasBallFlown[ballID] = true;
+                // if (isMultipleBallFlying() == true) {
+                    // io.emit('multipleBallFlying', {value: 1});
+                    io.emit('drawImages', {value: 1, _alpha: ori_obj[ballID].x});
+                // }
+
+            }
+
+            else if (stage == CATCH_BALL_4) {
+                // if (ballID == 2) io.emit('drawText', {value: 0});
+                io.emit('drawText', {value: 0});
+                // io.emit('setRotation', {value: ori_obj[ballID].x});
+            }
+
+            else if (stage == CATCH_BALL_ENDDING) {
+                // broadcast
+                var sumAcc = Math.abs(acc_obj[ballID].x) + Math.abs(acc_obj[ballID].y) + Math.abs(acc_obj[ballID].z);
+                io.emit('setBackground', {value: sumAcc});
+                hasBallFlown[ballID] = true;
+            } 
+
+        }
+
+    });
+
+    // socket.on('ball_1', function(data){
+
+    //     var ballID = 1;
     //     // console.log("ball_0");
     //     // console.log(data);
 
@@ -341,6 +543,7 @@ io.on('connection',  function(socket) {
     //                 hasBallFlown[ballID] = false;
     //             }
 
+                
     //             // if (endingCatchBallCount > (ENDING_CATCH_BALL_LIMIT + 1)) {
     //             //     // final falling
     //             //     // sound off
@@ -418,14 +621,10 @@ io.on('connection',  function(socket) {
     //                 io.emit('drawImages', {value: 1, _alpha: ori_obj[ballID].x});
     //             // }
 
-    //         }
-
-    //         else if (stage == CATCH_BALL_4) {
+    //         } else if (stage == CATCH_BALL_4) {
     //             if (ballID == 2) io.emit('drawText', {value: 0});
     //             // io.emit('setRotation', {value: ori_obj[ballID].x});
-    //         }
-
-    //         else if (stage == CATCH_BALL_ENDDING) {
+    //         } else if (stage == CATCH_BALL_ENDDING) {
     //             // broadcast
     //             // var sumAcc = Math.abs(acc_obj[ballID].x) + Math.abs(acc_obj[ballID].y) + Math.abs(acc_obj[ballID].z);
     //             // io.emit('setBackground', {value: sumAcc});
@@ -435,203 +634,6 @@ io.on('connection',  function(socket) {
     //     }
 
     // });
-
-    socket.on('ball_1', function(data){
-
-        var ballID = 1;
-        // console.log("ball_0");
-        // console.log(data);
-
-        // split by '|'
-        var o = data.split('|')[0]; // orientation
-        var a = data.split('|')[1]; // accelerometer
-        // var g = data.split('|')[2]; // accelerometer
-        // console.log("ori: " + o);
-        // console.log("acc: " + a);
-
-        ori_obj[ballID] = makeOriObj(o, 3); // it should change to be more simple process.
-        acc_obj[ballID] = makeAccObj(a, 2); // (obj, threshold to zero)
-        // g_obj[ballID] = makeGObj(g, 1); // (obj, threshold to zero)
-
-        // console.log(acc_obj[ballID]);
-
-        if (stage == GRAPH) {
-            // send for drawing graph
-            io.emit('acc'+ballID, acc_obj[ballID]);
-            io.emit('ori'+ballID, ori_obj[ballID]);
-            // io.emit('g'+ballID, g_obj[ballID]);
-        }
-
-        if (stage == LOGGING_IN) {
-            socketIdxCnt = 0;
-        }
-
-        if (stage != LOGGED_OUT) {
-            isRotating[ballID] = checkSpin(ballID, 20, 20);
-            isStop[ballID] = checkStop(ballID, 1, 10);
-        }
-
-        // when ball is stop..
-        if (isStop[ballID] && !isRotating[ballID]) {
-            isFlying[ballID] = false;
-
-            if (!isPrint_stopped[ballID]){
-                console.log("ball " + ballID + " is stopped!!!!")
-                isPrint_stopped[ballID] = true;
-                isPrint_not_stopped[ballID] = false;
-            }
-
-            // osc to supercollider
-            // SOUND
-            udpPort.send({
-                address: "/isBallStopped",
-                args: [
-                    { type: "i", value: ballID },
-                    { type: "i", value: STATUS_STOPPED },
-                    // { type: "i", value: endingCatchBallCount} // set amp using count
-                ]
-            }, "127.0.0.1", 57120);
-
-
-            // VISUAL - on stop
-            if (stage == CATCH_BALL_1) {
-                // console.log("stage CATCH_BALL_1");
-
-                if (hasBallFlown[ballID]) {
-                    // emit to all client sequencely
-                    var id = socketClientList[socketIdxCnt];
-                    var len = socketClientList.length;
-
-                    if (socketIdxCnt < len) {
-                        console.log(id);
-                        io.to(id).emit('setStage', {value: CATCH_BALL_1});
-                        socketIdxCnt++;
-                    } else {
-                        socketIdxCnt = 0;
-                    }
-
-                    console.log(socketIdxCnt + "/" + len);
-                    hasBallFlown[ballID] = false;
-                }
-
-            } else if (stage == CATCH_BALL_2) {
-                if (hasBallFlown[ballID]) {
-                    // broadcast
-                    io.emit('variantBotany', {value: 1});
-                    hasBallFlown[ballID] = false;
-                }
-            } else if (stage == CATCH_BALL_3) {
-                if (hasBallFlown[ballID]) {
-                    // broadcast
-                    io.emit('variantBotany', {value: 1});
-                    io.emit('drawImages', {value: 0, _alpha: 0}); // trajectory images
-                    hasBallFlown[ballID] = false;
-                }
-            } else if (stage == CATCH_BALL_4) {
-                // broadcast
-                if (ballID == 2) io.emit('drawText', {value: 1});
-            } else if (stage == CATCH_BALL_ENDDING) {
-                // broadcast
-                // ori_obj.x can not be 1000. This is a sign about it.
-                // io.emit('setBackground', {value: 1000}); // make background color as white
-
-                if (hasBallFlown[ballID]) {
-                    // endingCatchBallCount++;
-                    // console.log("endingCatchBallCount: " + endingCatchBallCount);
-                    hasBallFlown[ballID] = false;
-                }
-
-                
-                // if (endingCatchBallCount > (ENDING_CATCH_BALL_LIMIT + 1)) {
-                //     // final falling
-                //     // sound off
-                //     udpPort.send({
-                //         address: "/isBallStopped",
-                //         args: [
-                //             { type: "i", value: SOUND_OFF_ID}
-                //         ]
-                //     }, "127.0.0.1", 57120);
-
-                //     // chage stage
-                //     stage = LOGGED_OUT;
-                //     io.emit('setStage', {value: LOGGED_OUT});
-
-                // } else if (endingCatchBallCount > ENDING_CATCH_BALL_LIMIT) {
-
-                //     // console.log("over limit count")
-                //     // SOUND
-                //     udpPort.send({
-                //         address: "/isBallStopped",
-                //         args: [
-                //             { type: "i", value: ENDING_BALL_ID}, // specific number for represent over count limit
-                //             { type: "i", value: STATUS_STOPPED} 
-                //         ]
-                //     }, "127.0.0.1", 57120);
-
-                // }
-                
-            }  
-
-        } else {
-
-            isFlying[ballID] = true;
-            if (!isPrint_not_stopped[ballID]){
-                console.log("ball " + ballID + " is NOT stopped!!");
-                isPrint_not_stopped[ballID] = true;
-                isPrint_stopped[ballID] = false;
-            }
-
-            // SOUND
-            udpPort.send({
-                address: "/isBallStopped",
-                args: [
-                    { type: "i", value: ballID },
-                    { type: "i", value: STATUS_NOT_STOPPED },
-                    { type: "f", value: acc_obj[ballID].x },
-                    { type: "f", value: acc_obj[ballID].y },
-                    { type: "f", value: acc_obj[ballID].z },
-                    { type: "f", value: ori_obj[ballID].x },
-                    { type: "f", value: ori_obj[ballID].y },
-                    { type: "f", value: ori_obj[ballID].z },
-
-                ]
-            }, "127.0.0.1", 57120);
-
-
-            // VISUAL - flying
-            if (stage == CATCH_BALL_1) {
-
-                hasBallFlown[ballID] = true;
-            } else if (stage == CATCH_BALL_2) {
-
-                if (!CATCH_BALL_2_started){
-                    io.emit('drawFirstBotany', {value: 1});
-                    CATCH_BALL_2_started = true;
-                } 
-
-                hasBallFlown[ballID] = true;
-                io.emit('setRotation', {value: ori_obj[ballID].x});
-
-            } else if (stage == CATCH_BALL_3) {
-                hasBallFlown[ballID] = true;
-                // if (isMultipleBallFlying() == true) {
-                    // io.emit('multipleBallFlying', {value: 1});
-                    io.emit('drawImages', {value: 1, _alpha: ori_obj[ballID].x});
-                // }
-
-            } else if (stage == CATCH_BALL_4) {
-                if (ballID == 2) io.emit('drawText', {value: 0});
-                // io.emit('setRotation', {value: ori_obj[ballID].x});
-            } else if (stage == CATCH_BALL_ENDDING) {
-                // broadcast
-                // var sumAcc = Math.abs(acc_obj[ballID].x) + Math.abs(acc_obj[ballID].y) + Math.abs(acc_obj[ballID].z);
-                // io.emit('setBackground', {value: sumAcc});
-                hasBallFlown[ballID] = true;
-            } 
-
-        }
-
-    });
 
 
     // socket.on('ball_2', function(data){
