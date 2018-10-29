@@ -546,11 +546,12 @@ function draw() {
 
         case CATCH_BALL_ENDDING:
             // text ball rotation with 1 ball
-            colorMode(HSB);
             if (endingMakeWhite) {
+                colorMode(RGB);
                 background(0, 0, 100);
                 endingBackCol = 200;
             } else {
+                colorMode(HSB);
                 background(endingBackCol, endingBackSat, 100);
             };
 
