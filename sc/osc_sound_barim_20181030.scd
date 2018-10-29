@@ -40,14 +40,14 @@ SynthDef(\condan, {|freq = 240, dur = 5, gate = 1, amp = 0.5, freq2 = 33, amp2 =
 }).add;
 
 
-Ndef(\pulsepulse, {|freq = 200, freq_reson = 100, freq_trig = 4, amp = 0.02 |
+x = Ndef(\pulsepulse, {|freq = 200, freq_reson = 100, freq_trig = 4, amp = 0.02 |
 	var sig = Impulse.ar(freq);
 	var trig = Impulse.kr(freq_trig);
 	var env = EnvGen.kr(Env.perc(0.0, 0.8), trig, doneAction: 2);
 	Pan2.ar(Mix.fill(6, {Ringz.ar(sig, TRand.kr(freq_reson, freq_reson*1.5, trig), 0.01)}), 0, env * amp);
 }).fadeTime_(0.001);
 
-
+x.play;
 
 SynthDef(\woong,
     {
@@ -124,7 +124,7 @@ SynthDef("help-TCoin", { arg out=0, prob=0.5, freq = 20, freq_am = 0.5, amp = 0.
 ~e.stop;~p = ~f1.(1.2, -1.5, \sophi, 0.1);~e = ~p.asEventStreamPlayer;~e.play;
 
 
-a = Synth("help-T", [\freq, 200]);
+a = Synth(\gobeat, [\freq, 2000]); // 900, 600, 250, 2000
 
 a = Synth(\liedR, [\freq, 1000]);
 a.set(\freq, 500);
@@ -249,6 +249,8 @@ var isOpen_1 = false;
 var isOpen_2 = false;
 var isOpen_3 = false;
 
+~syn0;
+
 ~soundOff = false;
 // amp
 ~a0 = 0.35;
@@ -294,7 +296,16 @@ OSCdef(\ball, {
 
 	if (~soundOff == false, {
 		switch (stageNumber)
-		{0} { // 돌아가는 멜로디
+		{1} { // 멈출때, 단발적인, 펑펑, 텅텅?
+
+			if (msg[2] == 0, {
+				~syn0 = Synth(\gobeat, [\freq, [2000, 900, 600, 250].choose]); // 900, 600, 250, 2000
+			});
+
+
+		}
+
+		{2} { // 돌아가는 멜로디
 
 			if ( (msg[2] == 1) && (isOpen_0 == false), {
 				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
@@ -312,13 +323,13 @@ OSCdef(\ball, {
 			});
 
 		}
-		{1} { // 끼리릭
+		{3} { // 끼리릭 - 저음으로
 			if ( (msg[2] == 1), {
 				// "on".postln;
 				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
 				ori_sum = abs(ori_x) + abs(ori_y) + abs(ori_z);
 
-				Ndef(\pulsepulse).set(\freq, acc_sum * 10, \freq_reson, abs(ori_x*2), \freq_trig, 10, \amp, ~a2);
+				Ndef(\pulsepulse).set(\freq, acc_sum, \freq_reson, abs(ori_x*2), \freq_trig, 10, \amp, ~a2);
 				isOpen_2 = true;
 			});
 
@@ -327,7 +338,7 @@ OSCdef(\ball, {
 				isOpen_2 = false;
 			});
 		}
-		{2} { // 에러
+		{4} { // 에러
 			if ( (msg[2] == 1) && (isOpen_1 == false), {
 				// "1 open".postln;
 				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
