@@ -294,7 +294,7 @@ OSCdef(\ball, {
 
 	if (~soundOff == false, {
 		switch (stageNumber)
-		{0} {
+		{0} { // 돌아가는 멜로디
 
 			if ( (msg[2] == 1) && (isOpen_0 == false), {
 				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
@@ -312,7 +312,7 @@ OSCdef(\ball, {
 			});
 
 		}
-		{1} {
+		{1} { // 끼리릭
 			if ( (msg[2] == 1), {
 				// "on".postln;
 				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
@@ -327,7 +327,7 @@ OSCdef(\ball, {
 				isOpen_2 = false;
 			});
 		}
-		{2} {
+		{2} { // 에러
 			if ( (msg[2] == 1) && (isOpen_1 == false), {
 				// "1 open".postln;
 				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
@@ -363,9 +363,8 @@ OSCdef(\ball, {
 				isOpen_3 = false;
 			});
 		}
-
-		{10}// like beep "삐---"
-
+		{10} // like beep "삐---"
+		{
 			if ( msg[2] == 0, { // NOT STOP
 				~e6 = Synth("help-TCoin", [\freq, 5000, \rel, 0.1, \amp, ~a6]); // 0
 			});
