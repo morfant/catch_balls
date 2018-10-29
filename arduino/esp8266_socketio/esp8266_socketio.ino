@@ -43,9 +43,7 @@ void setup() {
   //  USE_SERIAL.println("after forloop!");
 
   // Set wifi info
-//      WiFiMulti.addAP("jjwc", "akdyspwm");
-  WiFiMulti.addAP("catch-bb", "soundtour2018");
-  //  WiFiMulti.addAP("pa-do", "jeokpa-do");
+  WiFiMulti.addAP("catch-bb", "catchbomb");
 
   while (WiFiMulti.run() != WL_CONNECTED) {
     //    USE_SERIAL.printf("wifi not connected!");
@@ -56,7 +54,6 @@ void setup() {
 
 
   // Set socket.io server address and port
-//      webSocket.begin("192.168.0.37", 3000); //jjwc
   webSocket.begin("192.168.1.2", 3000); // catch-bb
 
 //  USE_SERIAL.println("websocket began!");
