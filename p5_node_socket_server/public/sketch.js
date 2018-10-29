@@ -548,7 +548,8 @@ function draw() {
             // text ball rotation with 1 ball
             if (endingMakeWhite) {
                 colorMode(RGB);
-                background(0, 0, 100);
+                // background(0, 0, 100);
+                background(0);
                 endingBackCol = 200;
             } else {
                 colorMode(HSB);
