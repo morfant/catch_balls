@@ -312,7 +312,7 @@ OSCdef(\ball, {
 			});
 
 		}
-		{2} {
+		{1} {
 			if ( (msg[2] == 1), {
 				// "on".postln;
 				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
@@ -327,7 +327,7 @@ OSCdef(\ball, {
 				isOpen_2 = false;
 			});
 		}
-		{1} {
+		{0} {
 			if ( (msg[2] == 1) && (isOpen_1 == false), {
 				// "1 open".postln;
 				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
