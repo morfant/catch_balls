@@ -168,17 +168,17 @@ def handle_disconnetion():
     print(socketClientList)
 
 
-@socketio.on('ball_0')
-def handle_ball_0():
+#@socketio.on('ball_0')
+#def handle_ball_0():
 
-@socketio.on('ball_1')
-def handle_ball_1():
+#@socketio.on('ball_1')
+#def handle_ball_1():
 
-@socketio.on('ball_2')
-def handle_ball_2():
+#@socketio.on('ball_2')
+#def handle_ball_2():
 
-@socketio.on('ball_3')
-def handle_ball_3():
+#@socketio.on('ball_3')
+#def handle_ball_3():
 
 
 
