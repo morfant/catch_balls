@@ -46,7 +46,7 @@ SynthDef(\condan, {|freq = 240, dur = 5, gate = 1, amp = 0.5, freq2 = 33, amp2 =
 }).add;
 
 
-x = Ndef(\pulsepulse, {|freq = 200, freq_reson = 100, freq_trig = 4, amp = 0.02 |
+Ndef(\pulsepulse, {|freq = 200, freq_reson = 100, freq_trig = 4, amp = 0.02 |
 	var sig = Impulse.ar(freq);
 	var trig = Impulse.kr(freq_trig);
 	var env = EnvGen.kr(Env.perc(0.0, 0.8), trig, doneAction: 2);
