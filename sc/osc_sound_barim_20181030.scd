@@ -12,8 +12,14 @@ SynthDef(\gobeat, {|freq = 240, dur = 0.9, gate = 1, amp = 0.5|
 }).add;
 
 
-SynthDef(\sine, {|freq = 440, dur = 1.0, trig = 1|
+SynthDef(\sine, {|freq = 440, dur = 1.0, trig = 1, amp = 0.1|
 	// var env = Line.kr(0.2, 0.0, dur, doneAction:2);
+	var env = EnvGen.kr(Env.perc(0.01, 0.03), trig, doneAction: 2);
+	var sig = SinOsc.ar(freq, 0, env);
+	Out.ar(0, Pan2.ar(sig * amp));
+}).add;
+
+SynthDef(\sineCount, {|freq = 440, dur = 1.0, trig = 1|
 	var env = EnvGen.kr(Env.perc(0.01, 0.03), trig, doneAction: 2);
 	var sig = SinOsc.ar(freq, 0, env);
 	Out.ar(0, Pan2.ar(sig));
@@ -47,7 +53,6 @@ x = Ndef(\pulsepulse, {|freq = 200, freq_reson = 100, freq_trig = 4, amp = 0.02 
 	Pan2.ar(Mix.fill(6, {Ringz.ar(sig, TRand.kr(freq_reson, freq_reson*1.5, trig), 0.01)}), 0, env * amp);
 }).fadeTime_(0.001);
 
-x.play;
 
 SynthDef(\woong,
     {
@@ -124,7 +129,8 @@ SynthDef("help-TCoin", { arg out=0, prob=0.5, freq = 20, freq_am = 0.5, amp = 0.
 ~e.stop;~p = ~f1.(1.2, -1.5, \sophi, 0.1);~e = ~p.asEventStreamPlayer;~e.play;
 
 
-a = Synth(\gobeat, [\freq, 2000]); // 900, 600, 250, 2000
+a = Synth(\gobeat, [\freq, 2000, \amp, 0.1]); // 900, 600, 250, 2000
+a = Synth(\sine, [\freq, 700, \amp, 0.1]); // 900, 600, 250, 2000
 
 a = Synth(\liedR, [\freq, 1000]);
 a.set(\freq, 500);
@@ -151,10 +157,21 @@ a.set(\amp, 0);
 
 
 a = Synth(\dirac, [freq: 800]);
-
+~tick.(0.3)
 
 //================================ Functions ================================
 (
+
+~tick = { |a = 0.2|
+	fork{
+		1200.do{|i| // 20 min
+			if (~gotick == true, {
+			Synth(\sine, [\freq, 250 + i, \amp, a]);
+			});
+			1.0.wait;
+		}
+	}
+};
 
 ~f0 = {|lenMul = 1, keyAdd = 0, amp_ = 0.5|
 // var lenMul = 0.7;
@@ -164,10 +181,10 @@ Pbind(
 		// \instrument, \dirac,
 		\instrument, \gobeat,
 		// \freq, Pseq(60 - 24 +[\, 8, 14, 2, 4, 14, 12, 4, 5, \, 7, \, 7, 7, \],inf).midicps,
-		\freq, Pseq(60 - 10 + keyAdd + [\, 8, 14, 2, 4, 14, 12, 4, 5, \, 7, \, 7, 7, \],1).midicps,
+		\freq, Pseq(60 - 10 + keyAdd + [\, 8, 14, 2, 4, 14, 12, 4, 5, \, 7, \, 7, 7, \],inf).midicps,
 		// \dur, Pseq([1/8, 1/8, 1/4, 1/4, 1/4, 1/4, 1/4, 1/2, 1/4, 1/8, 1/8, 1/8, 1/8, 1/8, 1/8] * 1.2, inf),
-		\dur, Pseq([1/8, 1/8, 1/4, 1/4, 1/4, 1/4, 1/4, 1/2, 1/4, 1/16, 1/8, 3/16, 1/8, 1/8, 1/8] * 0.6 * lenMul, 1),
-		\delta, Pseq([1/8, 1/8, 1/4, 1/4, 1/4, 1/4, 1/4, 1/2, 1/4, 1/16, 1/8, 3/16, 1/8, 1/8, 1/8] * lenMul, 1),
+		\dur, Pseq([1/8, 1/8, 1/4, 1/4, 1/4, 1/4, 1/4, 1/2, 1/4, 1/16, 1/8, 3/16, 1/8, 1/8, 1/8] * 0.6 * lenMul, inf),
+		\delta, Pseq([1/8, 1/8, 1/4, 1/4, 1/4, 1/4, 1/4, 1/2, 1/4, 1/16, 1/8, 3/16, 1/8, 1/8, 1/8] * lenMul, inf),
 		\amp, amp_
 	);
 
@@ -240,6 +257,16 @@ Ndef(\pulsepulse).play;
 
 
 
+
+~tick.();
+~gotick = false;
+~tick.free;
+// ~tick.stop;
+
+
+Function
+Pdef
+
 //================================ OSCdef ================================
 (
 
@@ -248,10 +275,12 @@ var isOpen_0 = false;
 var isOpen_1 = false;
 var isOpen_2 = false;
 var isOpen_3 = false;
+var isFirstTime = true;
 
 ~syn0;
 
 ~soundOff = false;
+~gotick = true; // makes ~tick() sound or not
 // amp
 ~a0 = 0.35;
 ~a1 = 1;
@@ -259,6 +288,7 @@ var isOpen_3 = false;
 ~a3 = 0.7;
 ~aa3 = 0;
 ~a6 = 0.2; // warning sound
+~aa1 = 0.5;
 
 
 ~p0 = ~f0.(1, 0, ~a0);
@@ -274,6 +304,13 @@ var isOpen_3 = false;
 ~e1 = Synth(\condan, [\amp, 0]);
 // ~e3 = Synth(\liedR, [\amp, 0]);
 // ~e3 = Synth("help-TCoin_ori", [\amp, 0]);
+
+
+~p0 = ~f0.(1, 16, ~a0);
+~e0 = ~p0.asEventStreamPlayer;
+~e0.play;
+~e0.pause;
+
 
 Ndef(\pulsepulse).play;Ndef(\pulsepulse).set(\amp, 0);
 
@@ -291,15 +328,27 @@ OSCdef(\ball, {
 
 	    var acc_sum = 0;
 		var ori_sum = 0;
-	msg.postln;
+	// msg.postln;
 	// addr.postln;
 
 	if (~soundOff == false, {
 		switch (stageNumber)
-		{1} { // 멈출때, 단발적인, 펑펑, 텅텅?
+		{1} { // 멈출때, 단발적인, 펑펑, 텅텅? + 뚀또또또... 깔린는 음악
 
-			if (msg[2] == 0, {
-				~syn0 = Synth(\gobeat, [\freq, [2000, 900, 600, 250].choose]); // 900, 600, 250, 2000
+			if (isFirstTime == true, {
+				~tick.(0.3);
+				isFirstTime = false;
+			});
+
+
+			if ((msg[2] == 1) && (isOpen_1 == false), {
+				isOpen_1 = true;
+			});
+
+
+			if ((msg[2] == 0) && (isOpen_1 == true), {
+				~syn0 = Synth(\gobeat, [\freq, [1700, 900, 600, 250].choose, \amp, 0.2]); // 900, 600, 250,2000
+				isOpen_1 = false;
 			});
 
 
@@ -310,15 +359,13 @@ OSCdef(\ball, {
 			if ( (msg[2] == 1) && (isOpen_0 == false), {
 				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
 				// "0 is open".postln;
-				~p0 = ~f0.(1, 16, ~a0); //
-				~e0 = ~p0.asEventStreamPlayer;
-				~e0.play;
+				~e0.resume;
 				isOpen_0 = true;
 			});
 
 			if (msg[2] == 0, {
-				~e0.stop;~e0.reset;
-				~e0 = nil;
+				// ~e0.stop;~e0.reset;
+				~e0.pause;
 				isOpen_0 = false;
 			});
 
@@ -329,7 +376,7 @@ OSCdef(\ball, {
 				acc_sum = abs(acc_x) + abs(acc_y) + abs(acc_z);
 				ori_sum = abs(ori_x) + abs(ori_y) + abs(ori_z);
 
-				Ndef(\pulsepulse).set(\freq, acc_sum, \freq_reson, abs(ori_x*2), \freq_trig, 10, \amp, ~a2);
+				Ndef(\pulsepulse).set(\freq, acc_sum * [2, 10, 5].choose, \freq_reson, abs(ori_x), \freq_trig, 10, \amp, ~a2);
 				isOpen_2 = true;
 			});
 
@@ -394,6 +441,7 @@ OSCdef(\ball, {
 			// n.sendMsg("/bombard", 0.3);
 
 			~soundOff = true;
+			~gotick = false;
 
 
 		}
