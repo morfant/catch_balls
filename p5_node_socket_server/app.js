@@ -16,8 +16,8 @@ var stage = LOGGING_IN;
 var STATUS_NOT_STOPPED = 1;
 var STATUS_STOPPED = 0;
 var ENDING_CATCH_BALL_LIMIT = 20;
-var ENDING_BALL_ID = 5;
-var SOUND_OFF_ID = 6;
+var ENDING_BALL_ID = 10;
+var SOUND_OFF_ID = 11;
 
 // libs
 var express = require('express')
@@ -284,7 +284,9 @@ io.on('connection',  function(socket) {
             udpPort.send({
                 address: "/isBallStopped",
                 args: [
-                    { type: "i", value: ballID },
+                    // { type: "i", value: ballID },
+                    // { type: "i", value: STATUS_STOPPED },
+                    { type: "i", value: stage}, // 0, 1, 2, 3, 4, 5, 6
                     { type: "i", value: STATUS_STOPPED },
                     // { type: "i", value: endingCatchBallCount} // set amp using count
                 ]
@@ -383,7 +385,8 @@ io.on('connection',  function(socket) {
             udpPort.send({
                 address: "/isBallStopped",
                 args: [
-                    { type: "i", value: ballID },
+                    // { type: "i", value: ballID},
+                    { type: "i", value: stage}, // 0, 1, 2, 3, 4, 5, 6
                     { type: "i", value: STATUS_NOT_STOPPED },
                     { type: "f", value: acc_obj[ballID].x },
                     { type: "f", value: acc_obj[ballID].y },
@@ -483,7 +486,7 @@ io.on('connection',  function(socket) {
             udpPort.send({
                 address: "/isBallStopped",
                 args: [
-                    { type: "i", value: ballID },
+                    { type: "i", value: stage},
                     { type: "i", value: STATUS_STOPPED },
                     // { type: "i", value: endingCatchBallCount} // set amp using count
                 ]
@@ -582,7 +585,7 @@ io.on('connection',  function(socket) {
             udpPort.send({
                 address: "/isBallStopped",
                 args: [
-                    { type: "i", value: ballID },
+                    { type: "i", value: stage },
                     { type: "i", value: STATUS_NOT_STOPPED },
                     { type: "f", value: acc_obj[ballID].x },
                     { type: "f", value: acc_obj[ballID].y },
