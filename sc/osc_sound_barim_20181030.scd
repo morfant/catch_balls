@@ -1,7 +1,7 @@
 
 //================================ SynthDefs ================================
 
-// Buffer
+// Buffer!!!!
 ~sound_train = Buffer.read(s, "/Users/giy/Desktop/inTheTrain.wav");
 
 (
@@ -348,7 +348,7 @@ OSCdef(\ball, {
 
 			if (isFirstTime == true, {
 				~tick.(0.2);
-				~playBuf = Synth(\playBuf, [\bufnum, ~sound_train, \amp, 0.2]);
+				~playBuf = Synth(\playBuf, [\bufnum, ~sound_train, \amp, 2]);
 				isFirstTime = false;
 			});
 
@@ -359,7 +359,7 @@ OSCdef(\ball, {
 
 
 			if ((msg[2] == 0) && (isOpen_1 == true), {
-				~syn0 = Synth(\gobeat, [\freq, [1700, 900, 600, 250].choose, \amp, 0.2]); // 900, 600, 250,2000
+				~syn0 = Synth(\gobeat, [\freq, [1700, 900, 600, 250].choose, \amp, 0.1]); // 900, 600, 250,2000
 				isOpen_1 = false;
 			});
 
@@ -458,6 +458,7 @@ OSCdef(\ball, {
 
 			~soundOff = true;
 			~gotick = false;
+			~playBuf.free;
 
 
 		}
