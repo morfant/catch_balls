@@ -1,7 +1,18 @@
 
 //================================ SynthDefs ================================
 
+// Buffer
+~sound_train = Buffer.read(s, "/Users/giy/Desktop/inTheTrain.wav");
+
 (
+
+SynthDef(\playBuf, {| out = 0, bufnum = 0, amp = 0.5 |
+    Out.ar(out,
+		Pan2.ar(
+			PlayBuf.ar(1, bufnum, BufRateScale.kr(bufnum), doneAction: Done.freeSelf), 0, amp);
+    )
+}).add;
+
 SynthDef(\gobeat, {|freq = 240, dur = 0.9, gate = 1, amp = 0.5|
 	// var env = Line.kr(0.2, 0.0, dur, doneAction:2);
 	var env = EnvGen.kr(Env.perc(0.01, dur), gate, doneAction: 2);
@@ -337,6 +348,7 @@ OSCdef(\ball, {
 
 			if (isFirstTime == true, {
 				~tick.(0.2);
+				~playBuf = Synth(\playBuf, [\bufnum, ~sound_train, \amp, 0.2]);
 				isFirstTime = false;
 			});
 
