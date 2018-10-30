@@ -348,7 +348,7 @@ OSCdef(\ball, {
 
 			if (isFirstTime == true, {
 				~tick.(0.2);
-				~playBuf = Synth(\playBuf, [\bufnum, ~sound_train, \amp, 2]);
+				// ~playBuf = Synth(\playBuf, [\bufnum, ~sound_train, \amp, 2]);
 				isFirstTime = false;
 			});
 
@@ -458,7 +458,7 @@ OSCdef(\ball, {
 
 			~soundOff = true;
 			~gotick = false;
-			~playBuf.free;
+			// ~playBuf.free;
 
 
 		}
