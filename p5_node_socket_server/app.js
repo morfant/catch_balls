@@ -368,6 +368,16 @@ io.on('connection',  function(socket) {
                             { type: "i", value: STATUS_STOPPED} 
                         ]
                     }, "127.0.0.1", 57120);
+                } else {
+                    udpPort.send({
+                        address: "/isBallStopped",
+                        args: [
+                            { type: "i", value: stage}, // specific number for represent over count limit
+                            { type: "i", value: STATUS_STOPPED} 
+                        ]
+                    }, "127.0.0.1", 57120);
+                    console.log("COUNT: " + endingCatchBallCount);
+ 
                 }
             }  
         } else {
@@ -568,7 +578,18 @@ io.on('connection',  function(socket) {
                             { type: "i", value: STATUS_STOPPED} 
                         ]
                     }, "127.0.0.1", 57120);
+                    console.log("COUNT: " + endingCatchBallCount);
+                } else {
+                    udpPort.send({
+                        address: "/isBallStopped",
+                        args: [
+                            { type: "i", value: stage}, // specific number for represent over count limit
+                            { type: "i", value: STATUS_STOPPED} 
+                        ]
+                    }, "127.0.0.1", 57120);
+                    console.log("COUNT: " + endingCatchBallCount);
                 }
+ 
             }  
         } else {
 

@@ -166,7 +166,7 @@ a = Synth(\dirac, [freq: 800]);
 	fork{
 		1200.do{|i| // 20 min
 			if (~gotick == true, {
-			Synth(\sine, [\freq, 250 + i, \amp, a]);
+			Synth(\sine, [\freq, 950 + i, \amp, a]);
 			});
 			1.0.wait;
 		}
@@ -285,9 +285,9 @@ var isFirstTime = true;
 ~a0 = 0.35;
 ~a1 = 1;
 ~a2 = 0.05;
-~a3 = 0.7;
+~a3 = 1;
 ~aa3 = 0;
-~a6 = 0.2; // warning sound
+~a6 = 0.15; // warning sound
 ~aa1 = 0.5;
 
 
@@ -336,7 +336,7 @@ OSCdef(\ball, {
 		{1} { // 멈출때, 단발적인, 펑펑, 텅텅? + 뚀또또또... 깔린는 음악
 
 			if (isFirstTime == true, {
-				~tick.(0.3);
+				~tick.(0.2);
 				isFirstTime = false;
 			});
 
@@ -401,8 +401,10 @@ OSCdef(\ball, {
 
 		}
 		{5} { // bomb
-			if ( (msg[2] == 1), {
 
+			"bombing".postln;
+			if ( (msg[2] == 1), {
+			"bombing - ON".postln;
 				// msg[3].postln;
 
 				// bombing...
@@ -416,7 +418,9 @@ OSCdef(\ball, {
 			});
 
 			if (msg[2] == 0, {
-				~aa3 = (msg[3] * 0.03); // msg[3] will be 0 ~ 20
+			"bombing - OFF".postln;
+				// ~aa3 = (msg[3] * 0.03); // msg[3] will be 0 ~ 20
+				// ~aa3 = (acc_x * 0.03); // msg[3] will be 0 ~ 20
 				// ~aa3.postln;
 				isOpen_3 = false;
 			});
@@ -450,7 +454,7 @@ OSCdef(\ball, {
 
 	if (~soundOff == true, {
 		~e0.stop;~e0 = nil;
-		Ndef.clear;
+		// Ndef.clear;
 		Pdef.clear; // for bgm off
 		~e1.free;~e3.free;
 
