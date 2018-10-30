@@ -768,6 +768,11 @@ socket.on('acc3', function(_data) {
 socket.on('setStage', function(_data) {
     // console.log("Go to stage " + _data.value);
     stage = parseInt(_data.value);
+
+    if (stage == 1) {
+        oneIsFirstTime = true;
+        n = 1;
+    }
 });
 
 
